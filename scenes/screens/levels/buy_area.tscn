@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3 uid="uid://bs2ojp8fmt43t"]
+
+[ext_resource type="Script" path="res://scenes/screens/levels/buy_area.gd" id="1_d0rd1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g033y"]
+size = Vector2(186, 319)
+
+[node name="BuyArea" type="Area2D"]
+script = ExtResource("1_d0rd1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(92, 158)
+shape = SubResource("RectangleShape2D_g033y")
+
+[node name="Marker2D" type="Marker2D" parent="." groups=["StartingPositionMarkers"]]
+position = Vector2(56, 255)
+
+[node name="Marker2D2" type="Marker2D" parent="." groups=["StartPosMarkers"]]
+position = Vector2(56, 69)
+
+[node name="Marker2D3" type="Marker2D" parent="." groups=["StartingPositionMarkers"]]
+position = Vector2(59, 167)
+
+[node name="Marker2D4" type="Marker2D" parent="." groups=["StartingPositionMarkers"]]
+position = Vector2(139, 256)
+
+[node name="Marker2D5" type="Marker2D" parent="." groups=["StartingPositionMarkers"]]
+position = Vector2(139, 163)
+
+[node name="Marker2D6" type="Marker2D" parent="." groups=["StartingPositionMarkers"]]
+position = Vector2(132, 76)

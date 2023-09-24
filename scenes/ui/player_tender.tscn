@@ -1,0 +1,35 @@
+[gd_scene load_steps=3 format=3 uid="uid://bkrs0cguctsi"]
+
+[ext_resource type="Script" path="res://scenes/ui/player_tender.gd" id="1_j15q1"]
+[ext_resource type="PackedScene" uid="uid://cy0vtlyks2vvt" path="res://scenes/ui/text_ith_image_row.tscn" id="1_shtdr"]
+
+[node name="player_tender" type="Control" groups=["player_tenders"]]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 117.0
+offset_bottom = 142.0
+script = ExtResource("1_j15q1")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 117.0
+offset_bottom = 142.0
+color = Color(1, 0.623529, 0, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect"]
+layout_mode = 0
+offset_right = 117.0
+offset_bottom = 144.0
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer"]
+layout_mode = 2
+
+[node name="Money" parent="ColorRect/MarginContainer/VBoxContainer" instance=ExtResource("1_shtdr")]
+layout_mode = 2
+
+[node name="UnitCount" parent="ColorRect/MarginContainer/VBoxContainer" instance=ExtResource("1_shtdr")]
+layout_mode = 2
