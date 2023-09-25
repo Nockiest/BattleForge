@@ -1,11 +1,11 @@
 extends Control
 
-var money = 100:
-	get:
-		return money
-	set(value):
-		money = max(0, min(value, 100))
-		update_tender()
+#var money = 100:
+#	get:
+#		return money
+#	set(value):
+#		money = max(0, min(value, 100))
+#		update_tender()
  
 var team:String  
 var prev_units = null
@@ -45,22 +45,20 @@ func update_tender():
 		return
 	prev_units = same_color_units
 #	print("called")
-	$ColorRect/MarginContainer/VBoxContainer/Money/Label.text = str(money)
+	if team == "blue":
+		$ColorRect/VScrollBar/VBoxContainer/Money/Label.text = str(Globals.blue_player_money)
+	elif team =="red":
+		$ColorRect/VScrollBar/VBoxContainer/Money/Label.text = str(Globals.red_player_money)
+	else:
+		print_debug("something wrong with rendering money ", team)
  
 
 #	var sorted_units = {}
 	if same_color_units:
 #		print(same_color_units)
 		sort_units(same_color_units)
-#	for unit in same_color_units:
-#		var unit_type = unit.unit_name  # get_class()
-#		if unit_type in sorted_units:
-#			sorted_units[unit_type] += 1
-#		else:
-#			sorted_units[unit_type] = 1
-
-	# Get all the grandchildren of the VBoxContainer
-	var vbox = $ColorRect/MarginContainer/VBoxContainer
+ 
+	var vbox = $ColorRect/VScrollBar/VBoxContainer
 	for child in vbox.get_children():
 	# If the child's name begins with "UnitCount", delete it
 		if not child.name.begins_with("Money"):
@@ -68,9 +66,8 @@ func update_tender():
 
 # For each count in unit_counts, create a new Label and add it to the VBoxContainer
 	for key in sorted_units.keys():
-#		print(key, " key")
 		var label = Label.new()
 		label.name = "UnitCount" + key
 		label.text = key + ": " + str(sorted_units[key])
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(label)
- 

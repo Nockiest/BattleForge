@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://dkrdjtyb1p88n"]
+[gd_scene load_steps=8 format=3 uid="uid://dkrdjtyb1p88n"]
 
 [ext_resource type="Script" path="res://scenes/screens/levels/units/DefaultUnit.gd" id="1_vdjhd"]
 [ext_resource type="Texture2D" uid="uid://ixa58p2rs7m1" path="res://img/knight.png" id="2_bl1id"]
+[ext_resource type="Script" path="res://scenes/screens/levels/units/CollisionArea.gd" id="4_gcuuy"]
 [ext_resource type="PackedScene" uid="uid://ckpuh02hucwvd" path="res://components/HealthComponent.tscn" id="4_oq3j3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ue5o7"]
@@ -14,8 +15,7 @@ size = Vector2(49, 48)
 
 [node name="basic_unit" type="StaticBody2D" groups=["living_units"]]
 z_index = 2
-collision_layer = 3
-collision_mask = 11
+collision_mask = 9
 input_pickable = true
 script = ExtResource("1_vdjhd")
 
@@ -92,6 +92,7 @@ shape = SubResource("CircleShape2D_lag7r")
 debug_color = Color(0.537255, 0.568627, 0.0862745, 0.862745)
 
 [node name="CollisionArea" type="Area2D" parent="."]
+script = ExtResource("4_gcuuy")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea"]
 visibility_layer = 25

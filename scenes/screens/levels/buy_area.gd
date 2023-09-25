@@ -1,7 +1,7 @@
 extends Area2D
 signal buy_unit(cost)
  
-func _place_new_unit(unit   ):
+func _place_new_unit(unit , money  ):
 	var battleground = $".."
 	var living_units = battleground.get_node("LivingUnits")
 	var collision_shape =  get_node("CollisionShape2D")  # Replace with the actual path to your collision shape node
@@ -30,6 +30,7 @@ func _place_new_unit(unit   ):
 			print("Position already occupied, not spawning new unit.")
 			# Remove the mock CollisionShape2D from the scene
 			remove_child(mock_collision_shape)
+			money += unit.cost
 			return  # Exit the function without spawning a new unit
 	# If no collisions, proceed with spawning the new unit
 #	var unit_instance = unit.instantiate() as StaticBody2D

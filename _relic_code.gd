@@ -33,3 +33,19 @@
 #		same_color_units.append(unit)
 
 # scale = Vector2(test_scale,test_scale )
+
+#	var tenders = get_tree().get_nodes_in_group("player_tenders") 
+#	for i in range(len(tenders)):
+#		var tender = tenders[i]
+#		if tender.team == "blue":
+##			print(tender.team, tender.money, tender.units) 
+#			tender.money-= cost
+
+#	for unit in same_color_units:
+#		var unit_type = unit.unit_name  # get_class()
+#		if unit_type in sorted_units:
+#			sorted_units[unit_type] += 1
+#		else:
+#			sorted_units[unit_type] = 1
+
+	# Get all the grandchildren of the VBoxContainer

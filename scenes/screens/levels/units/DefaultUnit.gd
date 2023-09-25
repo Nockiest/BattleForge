@@ -126,19 +126,21 @@ func attack():
 	remain_attacks -=1
 	return "success"
 
- 
 func _draw():
 	var local_start_turn_pos  = to_local(start_turn_position)
 	if Globals.moving_unit == self:
 		var fill_color = Utils.lighten_color(color, 0.4)
-		draw_circle(local_start_turn_pos, base_movement_range, fill_color)
+		# Draw an arc from 0 to PI radians (half a circle).
+		draw_arc(local_start_turn_pos, base_movement_range, 0,  PI*2, 100, fill_color, 3)
 		# Set the collision shape to match the drawn circle.
 		$AttackRangeArea/AttackRangeShape.shape = CircleShape2D.new()
 		$AttackRangeArea/AttackRangeShape.shape.radius = base_movement_range
 		$AttackRangeArea/AttackRangeShape.global_position = start_turn_position
 	if Globals.action_taking_unit == self:
 		var fill_color = Color(0.5,0.5,0.5)
+		# Draw an arc from 0 to PI radians (half a circle).
 		draw_circle($CollisionArea/CollisionShape2D.position, attack_range, fill_color)
+#		draw_arc($CollisionArea/CollisionShape2D.position, attack_range, 0, PI*2,100, fill_color, 3)
 		# Set the collision shape to match the drawn circle.
 		$MovementRangeArea/MovementRangeArea.shape = CircleShape2D.new()
 		$MovementRangeArea/MovementRangeArea.shape.radius = attack_range
@@ -163,7 +165,7 @@ func process_input():
 
 func _process(_delta): 
 	queue_redraw() 
-	if Color(Globals.cur_player)!= Color(color):
+	if Color(Globals.cur_player)!=  color :
 		return
 	process_input()
 	if Globals.moving_unit == self:
@@ -217,7 +219,6 @@ func set_new_start_turn_point():
 	start_turn_position = Vector2(center) 
 
 func update_for_next_turn():
-	print("BASE MOVEMENT", base_movement)
 	remain_movement =  base_movement 
 	remain_attacks = base_attacks
 	if has_node("RangedAttackComp"):
@@ -234,7 +235,7 @@ func _on_health_component_hp_changed(hp, prev_hp):
 		else:
 			tween.tween_property($ColorRect, "modulate", Color(1,1,1), 0.2)
 		
-		tween.tween_property($ColorRect, "modulate",  Color(color), 0.2)
+		tween.tween_property($ColorRect, "modulate",   color, 0.2)
 	if hp <= 0:
 		queue_free()
 

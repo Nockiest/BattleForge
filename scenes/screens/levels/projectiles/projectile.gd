@@ -2,7 +2,7 @@ extends Area2D
 class_name  Projectile
 @export var speed:int = 100
 var direction 
-var color
+var color:Color
 var attack_range 
 var start_position  
 var shooting_unit

@@ -36,36 +36,27 @@ func _ready():
 		var town_instance = town.instantiate() as Area2D
 		town_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
 		$Structures.add_child(town_instance)
+#		town_instance.connect()
 	for i in range(2):
 		var supply_depo_instance = supply_depo.instantiate() as Area2D
 		supply_depo_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
 		$Structures.add_child(supply_depo_instance)
  
 func _on_blue_buy_area_buy_unit(cost):
-	for player in players:# get_tree().get_nodes_in_group("players"):  
-		if player.color ==  "blue":
-			player.money-= cost
+#	for player in players:# get_tree().get_nodes_in_group("players"):  
+#		if player.color ==  "blue":
+#			player.money-= cost
 	print("buying unit", cost)
 	print(Globals.cur_player)
-#	var tenders = get_tree().get_nodes_in_group("player_tenders") 
-	for i in range(len(tenders)):
-		var tender = tenders[i]
-		if tender.team == "blue":
-#			print(tender.team, tender.money, tender.units) 
-			tender.money-= cost
-
+ 
+	
 func _on_red_buy_area_buy_unit(cost):
-	for player in players: 
-		if player.color == "red":
-			player.money-= cost
+#	for player in players: 
+#		if player.color == "red":
+#			player.money-= cost
 	print("buying unit", cost)
 	print(Globals.cur_player)
-	for i in range(len(tenders)):
-		var tender = tenders[i]
-		if tender.team == "red":
-#			print(tender.team, tender.money, tender.units) 
-			tender.money-= cost
-
+ 
 func _input(event):
 	if event is InputEventMouseMotion:
 		$VBoxContainer/DebugLabel.text = "Global Coors: " + str(event.position)
@@ -73,7 +64,7 @@ func _input(event):
 
 func _on_canvas_next_turn_pressed():
 	Globals.cur_player_index += 1  
-	var Supply_depos =  get_tree().get_nodes_in_group("SupplyDepos") 
+	var Supply_depos =  get_tree().get_nodes_in_group("supply_depos") 
 #	print (support_actions)
 	for depo in Supply_depos:
 		var resupply_action = depo.get_node("AreaResupplyAction")
@@ -83,11 +74,15 @@ func _on_canvas_next_turn_pressed():
 	## not currently used
 	var units = get_tree().get_nodes_in_group("living_units")
 	var support_actions = get_tree().get_nodes_in_group("support_actions")
+	var towns = get_tree().get_nodes_in_group("towns")
 	for unit in units:
 		unit.update_for_next_turn()
 	for support_action in support_actions:
 #		print (support_action, " supportaction ", support_action.get_parent())
 		support_action.provide_buffs()
+	for town in towns:
+		print("STRUCTURE ", town )
+		town.check_who_occupied()
 
 #	var support_actions = get_tree().get_nodes_in_group("support_actions")
  
