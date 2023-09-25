@@ -28,16 +28,11 @@ var attack_resistances =  {"base_resistance":  0.1  }
  
 var cost:int = 20
 var movement_polygon = []    
-var color: Color # = Color(str(Globals.cur_player))
+var color: Color  
 var original_position = position  # Store the current position
 var unit_name: String = "default"
 var start_hp: int = 2
-#func get_class():
-#	return name
-#
-#func is_class(value):
-#	return value == name
-
+ 
 func _ready():
 	$UnitStatsBar.hide()
 	$HealthComponent.hide()

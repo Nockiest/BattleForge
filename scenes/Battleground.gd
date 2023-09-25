@@ -19,6 +19,7 @@ func put_unit_into_teams():
 		var unit = units[i]
 		var team = teams[i % len(teams)]
 #		unit.remain_movement = unit.base_actions
+		print(unit, "UNIT")
 		unit.add_to_team(team)
 
 func _ready():

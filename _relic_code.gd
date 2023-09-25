@@ -42,7 +42,7 @@
 #			tender.money-= cost
 
 #	for unit in same_color_units:
-#		var unit_type = unit.unit_name  # get_class()
+#		 
 #		if unit_type in sorted_units:
 #			sorted_units[unit_type] += 1
 #		else:

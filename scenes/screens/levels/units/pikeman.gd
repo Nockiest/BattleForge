@@ -5,6 +5,4 @@ class_name Pikeman
 func _ready():
 	super._ready()
 	unit_name = "pikeman"
-
-
  

@@ -1,12 +1,5 @@
 extends Control
 
-#var money = 100:
-#	get:
-#		return money
-#	set(value):
-#		money = max(0, min(value, 100))
-#		update_tender()
- 
 var team:String  
 var prev_units = null
 var sorted_units:Dictionary = {}
@@ -27,15 +20,23 @@ func _process(_delta):
 	update_tender()
 	
 func sort_units(units):
-	sorted_units = {}
+	var sorted_units = {}
 	for unit in units:
-		var unit_type = unit.unit_name  # get_class()
-		if sorted_units == null:
-			sorted_units[unit_type] = 1
+		var unit_type = get_class_name(unit)#unit.get_class()
+		#print(unit_type)
+		if sorted_units ==  {}:
+			print("1")
+		#	sorted_units[unit_type] = 1
 		elif unit_type in sorted_units:
 			sorted_units[unit_type] += 1
+		#	print("2")
 		else:
 			sorted_units[unit_type] = 1
+		#	print("3")
+func get_class_name(node):
+	var path = node.get_script().get_path()
+	var parts = path.split("/")
+	return parts[parts.size() - 1].replace(".gd", "")
 
 func update_tender():
 #	var units = get_tree().get_nodes_in_group("living_units")
@@ -52,12 +53,12 @@ func update_tender():
 	else:
 		print_debug("something wrong with rendering money ", team)
  
-
+	print(same_color_units, "Smw color unitS")
 #	var sorted_units = {}
 	if same_color_units:
 #		print(same_color_units)
 		sort_units(same_color_units)
- 
+
 	var vbox = $ColorRect/VScrollBar/VBoxContainer
 	for child in vbox.get_children():
 	# If the child's name begins with "UnitCount", delete it
@@ -65,7 +66,9 @@ func update_tender():
 			child.queue_free()
 
 # For each count in unit_counts, create a new Label and add it to the VBoxContainer
+	print(sorted_units.keys(), sorted_units)
 	for key in sorted_units.keys():
+		print(key, "key")
 		var label = Label.new()
 		label.name = "UnitCount" + key
 		label.text = key + ": " + str(sorted_units[key])
