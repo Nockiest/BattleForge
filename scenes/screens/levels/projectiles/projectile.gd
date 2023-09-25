@@ -1,0 +1,41 @@
+extends Area2D
+class_name  Projectile
+@export var speed:int = 100
+var direction 
+var color:Color
+var attack_range 
+var start_position  
+var shooting_unit
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	start_position = position
+	$ExplosionAnimation.hide()
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	position += speed * delta * direction
+	if position.distance_to(start_position) >= attack_range:
+		_play_explosion() 	 
+func _on_area_entered(area):
+	if area.get_parent() == shooting_unit:
+		return false
+	if  not (area.get_parent() is BattleUnit):
+		print(area.get_parent(), " ISNT A BATTLE UNIT")
+		return
+	print(  "entered area ", area  )
+	return true
+func _play_explosion():
+	# Only play the animation if it's not already playing
+	if not $ExplosionAnimation.is_playing():
+		$ExplosionAnimation.play("explosion")
+		stop_movement()
+		$Sprite2D.hide()
+		$ExplosionAnimation.show()
+		return "STARTED"
+	return false
+	
+func stop_movement():
+	speed = 0
+#	# Connect the animation_finished signal to a function that removes the parent node
+
+func _on_damage_animation_animation_finished():
+	queue_free()
