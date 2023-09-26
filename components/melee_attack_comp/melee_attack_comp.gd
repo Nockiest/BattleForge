@@ -1,13 +1,15 @@
 class_name MeleeAttackComp
-extends Node2D
+extends DefaultAttackComponent
 signal attack_failed
 signal attack_suceeded
 
 func _ready():
+	super._ready()
 	$SlashAnimation.hide()
 	
-func attack(attack_range, color, attacked_entity):
-	if not Globals.hovered_unit or Globals.hovered_unit.color == color:
+func attack(    ):
+	super.attack(   )
+	if not Globals.hovered_unit or Globals.hovered_unit.color == get_parent().color:
 		attack_failed.emit()
 		return "failed"	
 #	print( self.get_parent().global_position.distance_to(Globals.hovered_unit.global_position), attack_range)
@@ -15,8 +17,8 @@ func attack(attack_range, color, attacked_entity):
 	if distance > attack_range:
 		attack_failed.emit()
 		return "failed"
-	attacked_entity.get_node("HealthComponent").hit(1) 
-	var collision_shape = attacked_entity.get_node("CollisionArea/CollisionShape2D")  # Replace with your actual node path
+	Globals.hovered_unit.get_node("HealthComponent").hit(1) 
+	var collision_shape = Globals.hovered_unit.get_node("CollisionArea/CollisionShape2D")  # Replace with your actual node path
 	var shape_size = collision_shape.shape.extents * 2  # For RectangleShape2D and CapsuleShape2D
 	var pos = Globals.hovered_unit.global_position + shape_size / 2
 	Utils.play_animation_at_position($SlashAnimation,"slash",pos) 

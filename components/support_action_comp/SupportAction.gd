@@ -45,9 +45,13 @@ func choose_supported():
 	return "SUCCESS"
 	
 # connected to next turn button
+## currently when i want to provide a buff on the enemy turn, it wouldnt work
 func provide_buffs():
 	if area_support:
 		print("AREA SUPPORT")
+		return
+ 
+	if get_parent().color  != Color(Globals.cur_player):
 		return
 	if buff_already_applied and constant_buff:
 		return

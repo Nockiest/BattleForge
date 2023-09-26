@@ -38,7 +38,6 @@ visible = true
 z_index = 4096
 
 [node name="CollisionArea" parent="." index="7" groups=["unit_collision_areas"]]
-visible = true
 metadata/_edit_lock_ = true
 
 [node name="CollisionShape2D" parent="CollisionArea" index="0"]

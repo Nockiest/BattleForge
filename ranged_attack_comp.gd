@@ -1,5 +1,5 @@
-extends Node2D
-signal bullet_shot
+class_name RangedAttackComp
+extends DefaultAttackComponent
 signal ammo_changed(ammo)
 @onready var projectile_scene:PackedScene = preload("res://scenes/screens/levels/projectiles/bullet.tscn")
 var max_ammo: int
@@ -9,18 +9,20 @@ var max_ammo: int
 	set(value):
 		ammo = min(value, max_ammo)
 		ammo_changed.emit(ammo)
-var attack_range
  
 
 func _ready():
+	super._ready()
 	$BlastAnimation.hide()
 	connect("bullet_shot", _on_bullet_shot)   
 
-func attack(start):
+func attack( ):
+	super.attack( )
 	## ten check na hovered unit asi nepotřebujiu
 	if Globals.hovered_unit   and ammo > 0:
 		var direction = (Globals.hovered_unit.global_position - global_position).normalized()
-		bullet_shot.emit(start, direction) 
+#		bullet_shot.emit(start, direction) 
+		_on_bullet_shot(get_parent().center, direction)
 		ammo-=1
 
 func _on_bullet_shot(pos, direction):

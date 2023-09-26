@@ -1,6 +1,6 @@
 extends Area2D
 signal buy_unit(cost)
- 
+var units_inside:Array = []
 func _place_new_unit(unit , money  ):
 	var battleground = $".."
 	var living_units = battleground.get_node("LivingUnits")
@@ -45,7 +45,28 @@ func _place_new_unit(unit , money  ):
 #	print("SUBTRACTED MONEY ", player_money)
 	# Remove the mock CollisionShape2D from the scene
 	remove_child(mock_collision_shape)
-#
+
+
+func _on_area_entered(area):
+	if not(area is UnitMainCollisionArea):
+		return
+	if not (area.get_parent() is BattleUnit):
+		return
+	print("UNIT ENTERED BUY AREA",  area.get_parent())
+	units_inside.append(area.get_parent())
+#	occuping_units[parent_color] 
+
+
+func _on_area_exited(area):
+#	if area.get_parent() is BattleUnit:
+#	if occuping_units[area.get_parent().color]:
+	if not (area is UnitMainCollisionArea):
+		return
+	if area.get_parent() not in units_inside:
+		return
+	print("UNIT EXITED BUY AREA ")
+	units_inside.erase(area.get_parent())
+		
 #func _place_new_unit(unit):
 #	var battleground = $".."
 #	var living_units = battleground.get_node("LivingUnits")

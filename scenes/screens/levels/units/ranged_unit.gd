@@ -14,7 +14,7 @@ func _ready():
 func attack():
 	if super.attack() == "success":
 #		print("IS SUCCESS")
-		$RangedAttackComp.attack(center)
+		$RangedAttackComp.attack( )
 #		toggle_attack_screen()
 func toggle_attack_screen(): 
 	var ranged_attack_component = $RangedAttackComp

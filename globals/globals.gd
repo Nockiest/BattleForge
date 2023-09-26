@@ -8,6 +8,7 @@ var blue_player_color: Color = Color("0000ff")
 var players = ["blue", "red"]
 var cur_player = "blue"
 var hovered_unit
+var placed_unit
 var hovered_structure
 var action_taking_unit
 var moving_unit

@@ -1,5 +1,6 @@
 extends Node2D
 
+@export var per_turn_income = 10
 var hovered_element = null
 var selected_move_unit = null
 var selected_attacking_unit = null
@@ -12,7 +13,7 @@ var supply_depo: PackedScene = preload("res://structures/supply_depo.tscn")
 #this could cause potential problems in the future
 @onready var tenders = get_tree().get_nodes_in_group("player_tenders")
 @onready var players = get_tree().get_nodes_in_group("players")
-
+ 
 func put_unit_into_teams():
 	var units = get_tree().get_nodes_in_group("living_units") 
 	for i in range(len(units)):
@@ -20,18 +21,14 @@ func put_unit_into_teams():
 		var team = teams[i % len(teams)]
 #		unit.remain_movement = unit.base_actions
 		unit.add_to_team(team)
+		unit.is_newly_bought = false
+	Globals.placed_unit = null
 
 func _ready():
 	LoadingScreen.render_loading_screen()
 	set_process_input(true)
 	put_unit_into_teams()
-#	for i in len(teams):
-#		var player_instance = player_scene.instantiate() as Node2D
-#		player_instance.color =  Color(teams[i])
-#		player_instance.text_name = teams[i] 
-##		var tender = $canvas/Tenders.get_child(i)
-#		$Players.add_child(player_instance)
-#		tenders[i].team = teams[i]
+ 
 	for i in range(1):
 		var town_instance = town.instantiate() as Area2D
 		town_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
@@ -43,17 +40,11 @@ func _ready():
 		$Structures.add_child(supply_depo_instance)
  
 func _on_blue_buy_area_buy_unit(cost):
-#	for player in players:# get_tree().get_nodes_in_group("players"):  
-#		if player.color ==  "blue":
-#			player.money-= cost
 	print("buying unit", cost)
 	print(Globals.cur_player)
  
 	
 func _on_red_buy_area_buy_unit(cost):
-#	for player in players: 
-#		if player.color == "red":
-#			player.money-= cost
 	print("buying unit", cost)
 	print(Globals.cur_player)
  
@@ -64,17 +55,13 @@ func _input(event):
 
 func _on_canvas_next_turn_pressed():
 	Globals.cur_player_index += 1  
-	var Supply_depos =  get_tree().get_nodes_in_group("supply_depos") 
-#	print (support_actions)
-	for depo in Supply_depos:
-		var resupply_action = depo.get_node("AreaResupplyAction")
-		resupply_action.provide_buffs()
 	Globals.action_taking_unit = null
 	Globals.moving_unit = null
 	## not currently used
+	var Supply_depos =  get_tree().get_nodes_in_group("supply_depos") 
 	var units = get_tree().get_nodes_in_group("living_units")
 	var support_actions = get_tree().get_nodes_in_group("support_actions")
-	var towns = get_tree().get_nodes_in_group("towns")
+	var towns = get_tree().get_nodes_in_group("towns") 
 	for unit in units:
 		unit.update_for_next_turn()
 	for support_action in support_actions:
@@ -82,10 +69,27 @@ func _on_canvas_next_turn_pressed():
 		support_action.provide_buffs()
 	for town in towns:
 		print("STRUCTURE ", town )
-		town.check_who_occupied()
+		town.make_next_turn_calculations()
+	for depo in Supply_depos:
+		var resupply_action = depo.get_node("AreaResupplyAction")
+		resupply_action.provide_buffs()
+	give_money_income_to_players()
 
-#	var support_actions = get_tree().get_nodes_in_group("support_actions")
- 
+func give_money_income_to_players(): 
+	var red_towns = 0
+	var blue_towns = 0
+	var towns = get_tree().get_nodes_in_group("towns")
+	for town in towns:
+		print("STRUCTURE ", town )
+		if town.team_alligiance == "red":
+			red_towns += 1
+		elif town.team_alligiance == "blue":
+			blue_towns += 1
+	print(red_towns, blue_towns, " BLUE AND RED TOWNS")
+	Globals.blue_player_money += per_turn_income + blue_towns*10
+	Globals.red_player_money += per_turn_income + red_towns*10
+	print(Globals.blue_player_money,Globals.red_player_money )
+
 func update_tender(new_value, color):
 	print("UPDATING TENDER TO ", new_value, color) 
 	

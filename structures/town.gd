@@ -3,7 +3,7 @@ var house_scene:PackedScene = preload("res://structures/house.tscn")  # get the 
 var num_houses:int = 5
 @onready var rect_shape =  $CollisionShape2D.shape as RectangleShape2D  # Access the RectangleShape2D
 # Called when the node enters the scene tree for the first time.
-var occupying_units: Array
+var units_inside: Array
 var team_alligiance
 func _ready():
 #	place_house()
@@ -15,6 +15,7 @@ func place_house():
 		get_random_house_position(house_instance)
 		add_child(house_instance)
 		house_instance.connect("house_interferes", get_random_house_position ) 
+
 func get_random_house_position(house):
 	var house_collision_shape = house.get_child(0).shape as RectangleShape2D  # Access the house's RectangleShape2D
 	var min_x = house_collision_shape.extents.x  
@@ -36,31 +37,33 @@ func is_area_occupied(area):
 	return false
  
  
-func _on_area_entered(area):
-	print(area, " ",area is UnitMainCollisionArea)
+func _on_area_entered(area): 
 	if not(area is UnitMainCollisionArea):
 		return
 	if not (area.get_parent() is BattleUnit):
 		return
 	print("UNIT ENTERED TOWN ",  area.get_parent())
-	occupying_units.append(area.get_parent())
-#	occuping_units[parent_color] 
-	print(occupying_units)
+	units_inside.append(area.get_parent())
+#	occuping_units[parent_color]  
 
 func _on_area_exited(area):
 #	if area.get_parent() is BattleUnit:
 #	if occuping_units[area.get_parent().color]:
 	if not (area is UnitMainCollisionArea):
 		return
-	if area.get_parent() not in occupying_units:
+	if area.get_parent() not in units_inside:
 		return
-	print("UNIT EXITED TOWN ",  area.get_parent(), area,  occupying_units )
-	occupying_units.erase(area.get_parent())
+	print("UNIT EXITED TOWN ",  area.get_parent(), area,  units_inside )
+	units_inside.erase(area.get_parent())
 		
+func make_next_turn_calculations():
+	check_who_occupied()
+	change_edge_color()
 func check_who_occupied():
 	var blue_count = 0
 	var red_count = 0
-	for unit in occupying_units:
+	team_alligiance = null
+	for unit in units_inside:
 		if unit.color == Color("red"):
 			red_count += 1
 		elif unit.color == Color("blue"):
@@ -73,8 +76,12 @@ func check_who_occupied():
 		team_alligiance = "red"
 	
 	print("TEAM ALIGIENCE", team_alligiance)
-	var edge = $Edge
+ 
+func change_edge_color():
 	if team_alligiance == "blue":
-		edge.color = Color("blue")
+		$Edge.color = Color("blue")
 	elif team_alligiance == "red":
-		edge.color = Color("red")	
+		$Edge.color = Color("red")	
+	else:
+		$Edge.color = Color("white")
+		

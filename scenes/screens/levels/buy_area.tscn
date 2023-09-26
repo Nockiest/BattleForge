@@ -5,7 +5,8 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g033y"]
 size = Vector2(186, 319)
 
-[node name="BuyArea" type="Area2D"]
+[node name="BuyArea" type="Area2D" groups=["buy_areas"]]
+light_mask = 64
 script = ExtResource("1_d0rd1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -29,3 +30,6 @@ position = Vector2(139, 163)
 
 [node name="Marker2D6" type="Marker2D" parent="." groups=["StartingPositionMarkers"]]
 position = Vector2(132, 76)
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]

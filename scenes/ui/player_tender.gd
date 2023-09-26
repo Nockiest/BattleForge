@@ -1,14 +1,8 @@
 extends Control
-
-#var money = 100:
-#	get:
-#		return money
-#	set(value):
-#		money = max(0, min(value, 100))
-#		update_tender()
  
 var team:String  
 var prev_units = null
+var prev_money = null
 var sorted_units:Dictionary = {}
 
 func _ready():
@@ -40,20 +34,22 @@ func sort_units(units):
 func update_tender():
 #	var units = get_tree().get_nodes_in_group("living_units")
 	var same_color_units = get_tree().get_nodes_in_group(str(Color(team)))
-	if prev_units == same_color_units:
+	var current_money =  Globals.red_player_money if team == "red" else   Globals.blue_player_money
+	if prev_units == same_color_units and  prev_money ==current_money:
 		prev_units = same_color_units
+		prev_money =current_money
 		return
 	prev_units = same_color_units
+	prev_money =current_money
 #	print("called")
-	if team == "blue":
+	print(Globals.blue_player_money, "BLUE PLAYER MONEY ON UPDATE ", team)
+	if team == "blue":  
 		$ColorRect/VScrollBar/VBoxContainer/Money/Label.text = str(Globals.blue_player_money)
 	elif team =="red":
 		$ColorRect/VScrollBar/VBoxContainer/Money/Label.text = str(Globals.red_player_money)
 	else:
 		print_debug("something wrong with rendering money ", team)
  
-
-#	var sorted_units = {}
 	if same_color_units:
 #		print(same_color_units)
 		sort_units(same_color_units)

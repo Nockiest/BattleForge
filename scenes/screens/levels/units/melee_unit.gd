@@ -3,7 +3,7 @@ class_name MeleeUnit
  
 func attack():
 	if super.attack() == "success":
-		$melee_attack_comp.attack(attack_range, color, Globals.hovered_unit )
+		$melee_attack_comp.attack(  )
  
 func _ready():
 	super._ready()

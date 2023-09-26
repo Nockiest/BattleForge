@@ -1,5 +1,6 @@
-[gd_scene load_steps=12 format=3 uid="uid://j1m3phvcc4ib"]
+[gd_scene load_steps=14 format=3 uid="uid://j1m3phvcc4ib"]
 
+[ext_resource type="PackedScene" uid="uid://blmv0tqwcbn4s" path="res://components/default_attack_comp.tscn" id="1_8lmoj"]
 [ext_resource type="Script" path="res://components/melee_attack_comp/melee_attack_comp.gd" id="1_wafpm"]
 [ext_resource type="Texture2D" uid="uid://6un841kmqpln" path="res://img/anime/slash/frame-0.png" id="2_w1jq2"]
 [ext_resource type="Texture2D" uid="uid://clwwduw7vawwd" path="res://img/anime/slash/frame-1.png" id="3_7b7a7"]
@@ -11,7 +12,9 @@
 [ext_resource type="Texture2D" uid="uid://bdolelhe28iwi" path="res://img/anime/slash/frame-7.png" id="9_1xbc8"]
 [ext_resource type="Texture2D" uid="uid://0rhch1en1hmv" path="res://img/anime/slash/frame-8.png" id="10_ikt38"]
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_w37y2"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_01h08"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_p1wm6"]
 animations = [{
 "frames": [{
 "duration": 1.0,
@@ -46,10 +49,13 @@ animations = [{
 "speed": 10.0
 }]
 
-[node name="melee_attack_comp" type="Node2D"]
+[node name="melee_attack_comp" instance=ExtResource("1_8lmoj")]
 script = ExtResource("1_wafpm")
 
-[node name="SlashAnimation" type="AnimatedSprite2D" parent="."]
+[node name="AttackAnimation" parent="." index="1"]
+sprite_frames = SubResource("SpriteFrames_01h08")
+
+[node name="SlashAnimation" type="AnimatedSprite2D" parent="." index="2"]
 z_index = 4096
-sprite_frames = SubResource("SpriteFrames_w37y2")
+sprite_frames = SubResource("SpriteFrames_p1wm6")
 animation = &"slash"

@@ -1,5 +1,6 @@
-[gd_scene load_steps=14 format=3 uid="uid://dlin3h71y20cx"]
+[gd_scene load_steps=15 format=3 uid="uid://dlin3h71y20cx"]
 
+[ext_resource type="PackedScene" uid="uid://blmv0tqwcbn4s" path="res://components/default_attack_comp.tscn" id="1_8sx4h"]
 [ext_resource type="Script" path="res://ranged_attack_comp.gd" id="1_56ypw"]
 [ext_resource type="Texture2D" uid="uid://bpahu66r4rddg" path="res://img/anime/blast_animation/pixil-frame-0.png" id="2_mjfw6"]
 [ext_resource type="Texture2D" uid="uid://byvsynqne2dy7" path="res://img/anime/blast_animation/pixil-frame-1.png" id="3_svd2n"]
@@ -13,7 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://c3eiyptqv2v8x" path="res://img/anime/blast_animation/pixil-frame-9.png" id="11_ggwlh"]
 [ext_resource type="Texture2D" uid="uid://d3pdr3rq28br" path="res://img/anime/blast_animation/pixil-frame-10.png" id="12_iof4a"]
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_tac5r"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_iibnk"]
 animations = [{
 "frames": [{
 "duration": 1.0,
@@ -54,13 +55,13 @@ animations = [{
 "speed": 11.0
 }]
 
-[node name="RangedAttackComp" type="Node2D"]
+[node name="RangedAttackComp" instance=ExtResource("1_8sx4h")]
 script = ExtResource("1_56ypw")
 
-[node name="BlastAnimation" type="AnimatedSprite2D" parent="."]
+[node name="BlastAnimation" type="AnimatedSprite2D" parent="." index="2"]
 scale = Vector2(1.6875, 1.65625)
-sprite_frames = SubResource("SpriteFrames_tac5r")
+sprite_frames = SubResource("SpriteFrames_iibnk")
 animation = &"blast"
 offset = Vector2(-20, -20)
 
-[node name="ExplosionAnimation" type="AnimatedSprite2D" parent="."]
+[node name="ExplosionAnimation" type="AnimatedSprite2D" parent="." index="3"]

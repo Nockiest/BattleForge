@@ -25,19 +25,16 @@ var attack_resistances =  {"base_resistance":  0.1  }
 @onready var center = $CollisionArea/CollisionShape2D.global_position +$CollisionArea/CollisionShape2D.shape.extents/2 
 @onready var size = $CollisionArea/CollisionShape2D.shape.extents * 2
 @onready var start_turn_position :Vector2 = get_global_transform().get_origin() # Vector2((position[0]+round(size[0]/2)),(position[1]+round(size[1]/2)))
- 
+@onready var buy_areas = get_tree().get_nodes_in_group("buy_areas")
+
 var cost:int = 20
 var movement_polygon = []    
 var color: Color # = Color(str(Globals.cur_player))
 var original_position = position  # Store the current position
 var unit_name: String = "default"
 var start_hp: int = 2
-#func get_class():
-#	return name
-#
-#func is_class(value):
-#	return value == name
-
+var is_newly_bought = true
+ 
 func _ready():
 	$UnitStatsBar.hide()
 	$HealthComponent.hide()
@@ -52,9 +49,11 @@ func _ready():
 	$MovementRangeArea/MovementRangeArea.shape.radius = base_movement_range
 	$MovementRangeArea/MovementRangeArea.hide()
 	emit_signal("bought", cost)
+	print(get_class())
 	
- ## unit killed
- 
+	if  is_newly_bought:
+		Globals.placed_unit = self
+		print("position not set")
  
 func get_boost():
 	print("THIS UNIT DOESNT HAVE A BOOST FOR KILLING A UNIT")
@@ -154,6 +153,9 @@ func add_to_team(team):
 	color_rect.modulate = color
 
 func process_input():
+	
+	if Color(Globals.cur_player)!=  color :
+		return
 	if Globals.hovered_unit == self : 
 		if Input.is_action_just_pressed("left_click"): 
 			toggle_move()
@@ -162,12 +164,52 @@ func process_input():
 	else:
 		if Input.is_action_just_pressed("right_click") :
 			attack()
+			
+func process_unit_placement():
+	if Input.is_action_just_pressed("left_click"): 
+#		print(Globals.hovered_unit, "PROCESSING UNIT PLACEMENT")
+		## check wheter any unit doesnt overlap with this unit
+		if Globals.hovered_unit != self:
+			print(Globals.hovered_unit, "POSITION CANNOT BE SET")
+		var in_valid_buy_area = false
+		## check wheter it is being placed inside the buy bar
+		for buy_area in buy_areas:
+			if self in buy_area.units_inside:
+				print("Collision detected with ", buy_area)
+				in_valid_buy_area = true
+		## check wheter it is placed in and of the occupied cities
+		for town in get_tree().get_nodes_in_group("towns"):
+			if town.team_alligiance == null:
+				continue
+			if Color(town.team_alligiance)!= color:
+				continue
+			if self in town.units_inside:
+				print("UNIT IS INSIDE OF AN OCCUPIED CITY")
+				in_valid_buy_area = true
+		if in_valid_buy_area:
+			print(Globals.hovered_unit,"CAN PLACE A UNIT")
+			is_newly_bought = false
+			Globals.placed_unit = null
+			return
+		print(Globals.hovered_unit, "POSITION CANNOT BE SET")
+ 
+
+	if Input.is_action_just_pressed("right_click"): 
+		print("ABORTING BUYING AND GIVING MONEY BACK")
+		queue_free()
 
 func _process(_delta): 
-	queue_redraw() 
-	if Color(Globals.cur_player)!=  color :
+	queue_redraw()
+	if  Globals.placed_unit == self:
+		position = get_global_mouse_position() - size / 2
+		center = get_global_mouse_position() - size / 2
+		start_turn_position = get_global_mouse_position() - size / 2
+		process_unit_placement()
+		return   
+	if Globals.placed_unit != null:
 		return
 	process_input()
+ 
 	if Globals.moving_unit == self:
 		move() 
  

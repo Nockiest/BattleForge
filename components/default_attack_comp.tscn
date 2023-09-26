@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://blmv0tqwcbn4s"]
+
+[ext_resource type="Script" path="res://components/default_attack_comp.gd" id="1_x26rv"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_dya2i"]
+
+[node name="default_attack_comp" type="Node2D"]
+script = ExtResource("1_x26rv")
+
+[node name="AttackRangeArea" type="Area2D" parent="."]
+light_mask = 2
+
+[node name="AttackRangeShape" type="CollisionShape2D" parent="AttackRangeArea"]
+visible = false
+position = Vector2(25, 24)
+shape = SubResource("CircleShape2D_dya2i")
+debug_color = Color(0.843137, 0.294118, 0.619608, 0.756863)
+
+[node name="AttackAnimation" type="AnimatedSprite2D" parent="."]
+
+[connection signal="area_entered" from="AttackRangeArea" to="." method="_on_attack_range_area_area_entered"]
+[connection signal="area_exited" from="AttackRangeArea" to="." method="_on_attack_range_area_area_exited"]
