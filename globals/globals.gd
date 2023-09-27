@@ -11,6 +11,7 @@ var hovered_unit
 var placed_unit
 var hovered_structure
 var action_taking_unit
+var attacking_component
 var moving_unit
 var last_attacker
 var can_start_new_attack = true

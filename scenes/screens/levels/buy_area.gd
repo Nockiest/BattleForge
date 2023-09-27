@@ -1,6 +1,23 @@
 extends Area2D
 signal buy_unit(cost)
 var units_inside:Array = []
+@export var team = "blue"
+
+# 
+ 
+func _process(delta):
+	print(Globals.placed_unit)
+	if Globals.placed_unit:
+		$Sprite2D.show()
+	else:
+		$Sprite2D.hide()
+
+#func _draw():
+#	if Globals.placed_unit != null:
+#		var points = [Vector2(-50, -50), Vector2(50, -50), Vector2(50, 50), Vector2(-50, 50)]
+#		var color = Color("blue")
+#		draw_colored_polygon(points, color)
+		
 func _place_new_unit(unit , money  ):
 	var battleground = $".."
 	var living_units = battleground.get_node("LivingUnits")

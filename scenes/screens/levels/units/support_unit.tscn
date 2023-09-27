@@ -16,3 +16,5 @@ scale = Vector2(0.75, 0.734375)
 texture = SubResource("CompressedTexture2D_2c6gy")
 
 [node name="SupportAction" parent="." index="8" instance=ExtResource("4_c865d")]
+
+[editable path="DefaultAttackComp"]

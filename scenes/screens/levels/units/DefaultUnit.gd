@@ -6,21 +6,15 @@ signal interferes_with_area
 signal bought(cost)
 signal died(this)
 const base_movement:int = 1
-const base_attacks:int = 1
 const base_movement_range:int = 250  
-
+@onready var attack_component = %DefaultAttackComp
 var death_image_scene:PackedScene = preload("res://scenes/screens/levels/sprite_with_timer.tscn")
-var attack_range:int = 100 
-var attack_range_modifiers = {"base_modifier": 1}
-var units_in_attack_range:Array= []
+ 
 var remain_movement:int = base_movement:
 	set(new_movement):
 		remain_movement = new_movement
 		update_stats_bar()
-var remain_attacks: int = base_attacks:
-	set(new_attacks):
-		remain_attacks = new_attacks
-		update_stats_bar()
+ 
 var attack_resistances =  {"base_resistance":  0.1  }  
 @onready var center = $CollisionArea/CollisionShape2D.global_position +$CollisionArea/CollisionShape2D.shape.extents/2 
 @onready var size = $CollisionArea/CollisionShape2D.shape.extents * 2
@@ -28,7 +22,7 @@ var attack_resistances =  {"base_resistance":  0.1  }
 @onready var buy_areas = get_tree().get_nodes_in_group("buy_areas")
 
 var cost:int = 20
-var movement_polygon = []    
+#var movement_polygon = []    
 var color: Color # = Color(str(Globals.cur_player))
 var original_position = position  # Store the current position
 var unit_name: String = "default"
@@ -42,19 +36,20 @@ func _ready():
 	$HealthComponent/HealthBar.value = start_hp
 	$HealthComponent.hp = start_hp
 	update_stats_bar()
-	$AttackRangeArea/AttackRangeShape.shape = CircleShape2D.new()
-	$AttackRangeArea/AttackRangeShape.shape.radius = attack_range # * attack_range_modifiers["base_modifier"]
-	$AttackRangeArea/AttackRangeShape.hide()
 	$MovementRangeArea/MovementRangeArea.shape = CircleShape2D.new()
 	$MovementRangeArea/MovementRangeArea.shape.radius = base_movement_range
 	$MovementRangeArea/MovementRangeArea.hide()
 	emit_signal("bought", cost)
-	print(get_class())
-	
+#	attack_component.connect() update_stats_bar()
+	attack_component.center = center
 	if  is_newly_bought:
 		Globals.placed_unit = self
 		print("position not set")
- 
+
+
+func _on_default_attack_comp_remain_attacks_updated(new_attacks):
+	update_stats_bar()
+	
 func get_boost():
 	print("THIS UNIT DOESNT HAVE A BOOST FOR KILLING A UNIT")
 
@@ -85,65 +80,23 @@ func move():
 		position = new_position
 		original_position = new_position
 		center =  $CollisionArea.to_global($CollisionArea/CollisionShape2D.position + $CollisionArea/CollisionShape2D.shape.extents/2)
-
-		# Update AttackCollisionShape and MovementPosition CollisionShape
-		$AttackRangeArea/AttackRangeShape.position = center - Vector2($AttackRangeArea/AttackRangeShape.shape.radius, $AttackRangeArea/AttackRangeShape.shape.radius)
+		attack_component.center = center
+		#MovementPosition CollisionShape
 		$MovementRangeArea/MovementRangeArea.position = center - Vector2($MovementRangeArea/MovementRangeArea.shape.radius, $MovementRangeArea/MovementRangeArea.shape.radius)
 
 	else:
 		position = start_turn_position  # Revert to original position if collision detected
 		toggle_move()
 		remain_movement+= 1
-
-func check_can_attack():
-	if  Globals.action_taking_unit != self:
-		toggle_attack_screen()
-		return false
-	if not Globals.hovered_unit:
-		toggle_attack_screen()
-		print(2,   Globals.hovered_unit)
-		return false
-	if Globals.hovered_unit.color == color:
-		toggle_attack_screen()
-		print(3,  Globals.hovered_unit.color , color)
-		return false
-	if remain_attacks <= 0:
-		print(4,  remain_attacks)
-		return false
-	return true
-	
-func attack():
-#	print("processing", Globals.hovered_unit,Globals.action_taking_unit  )
-	if !check_can_attack():
-		return
  
-	var distance =  global_position.distance_to(Globals.hovered_unit.global_position) 
-	if distance > attack_range:
-		return "failed"
-	toggle_attack_screen()
-	Globals.last_attacker = self
-	remain_attacks -=1
-	return "success"
-
+ 
 func _draw():
 	var local_start_turn_pos  = to_local(start_turn_position)
 	if Globals.moving_unit == self:
 		var fill_color = Utils.lighten_color(color, 0.4)
 		# Draw an arc from 0 to PI radians (half a circle).
 		draw_arc(local_start_turn_pos, base_movement_range, 0,  PI*2, 100, fill_color, 3)
-		# Set the collision shape to match the drawn circle.
-		$AttackRangeArea/AttackRangeShape.shape = CircleShape2D.new()
-		$AttackRangeArea/AttackRangeShape.shape.radius = base_movement_range
-		$AttackRangeArea/AttackRangeShape.global_position = start_turn_position
-	if Globals.action_taking_unit == self:
-		var fill_color = Color(0.5,0.5,0.5)
-		# Draw an arc from 0 to PI radians (half a circle).
-		draw_circle($CollisionArea/CollisionShape2D.position, attack_range, fill_color)
-#		draw_arc($CollisionArea/CollisionShape2D.position, attack_range, 0, PI*2,100, fill_color, 3)
-		# Set the collision shape to match the drawn circle.
-		$MovementRangeArea/MovementRangeArea.shape = CircleShape2D.new()
-		$MovementRangeArea/MovementRangeArea.shape.radius = attack_range
-		$MovementRangeArea/MovementRangeArea.global_position = $CollisionArea/CollisionShape2D.position
+		# Set the collision shape to match the drawn circle. 
 
 func add_to_team(team):
 	color = Color(team)
@@ -151,6 +104,9 @@ func add_to_team(team):
 	add_to_group(str(color))
 	var color_rect = get_node("ColorRect")
 	color_rect.modulate = color
+
+func process_action():
+	attack_component.try_attack()
 
 func process_input():
 	
@@ -160,11 +116,14 @@ func process_input():
 		if Input.is_action_just_pressed("left_click"): 
 			toggle_move()
 		if Input.is_action_just_pressed("right_click"):
-			toggle_attack_screen()
+			print("TOGGLING SCREEN", self)
+			attack_component.toggle_attack_screen()
 	else:
+		if Globals.action_taking_unit != self:
+			return
 		if Input.is_action_just_pressed("right_click") :
-			attack()
-			
+			process_action()
+
 func process_unit_placement():
 	if Input.is_action_just_pressed("left_click"): 
 #		print(Globals.hovered_unit, "PROCESSING UNIT PLACEMENT")
@@ -174,9 +133,12 @@ func process_unit_placement():
 		var in_valid_buy_area = false
 		## check wheter it is being placed inside the buy bar
 		for buy_area in buy_areas:
-			if self in buy_area.units_inside:
-				print("Collision detected with ", buy_area)
-				in_valid_buy_area = true
+			if Color(buy_area.team) != color:
+				continue  
+			if self not in buy_area.units_inside:
+				continue
+			print("Collision detected with ", buy_area)
+			in_valid_buy_area = true
 		## check wheter it is placed in and of the occupied cities
 		for town in get_tree().get_nodes_in_group("towns"):
 			if town.team_alligiance == null:
@@ -227,6 +189,7 @@ func toggle_move():
 	elif Globals.hovered_unit != self:
 #		print("CASE 2")
 		return  
+
 	elif Globals.action_taking_unit != self and Globals.action_taking_unit != null:
 #		print("CASE 3")
 		return
@@ -239,21 +202,7 @@ func toggle_move():
 	Globals.moving_unit = self
 	Globals.action_taking_unit = null
  
-func toggle_attack_screen():
-	if Globals.action_taking_unit == self:
-		Globals.action_taking_unit = null
-#		print_debug("1 ", self)
-		return
-	if Globals.hovered_unit != self:
-#		print ("2 ", self,  Globals.hovered_unit)
-		return
-	if Globals.action_taking_unit != null:
-#		print_debug("3 ", self)
-		return
-	## switch between moving and doing action
-	deselect_movement()
-	if remain_attacks > 0:
-		Globals.action_taking_unit = self
+#attack_component
 
 func set_new_start_turn_point():
 	center =$CollisionArea/CollisionShape2D.global_position +$CollisionArea/CollisionShape2D.shape.extents/2 
@@ -262,9 +211,10 @@ func set_new_start_turn_point():
 
 func update_for_next_turn():
 	remain_movement =  base_movement 
-	remain_attacks = base_attacks
+#	remain_attacks = attack_component.base_attacks
 	if has_node("RangedAttackComp"):
 		$RangedAttackComp.ammo += 1
+	attack_component.update_for_next_turn()	
 #	if  has_node("HealthComponent"):
 #		$HealthComponent.heal(1)
 
@@ -296,7 +246,7 @@ func toggle_show_information():
 func update_stats_bar():
 	$UnitStatsBar/VBoxContainer/Health.text = "Health "+str($HealthComponent.hp)
 	$UnitStatsBar/VBoxContainer/Actions.text = "Moves "+str(remain_movement)
-	$UnitStatsBar/VBoxContainer/Attacks.text = "Attacks "+str(remain_attacks)
+	$UnitStatsBar/VBoxContainer/Attacks.text = "Attacks "+str(attack_component.remain_attacks)
 
 func _on_movement_range_area_area_entered(_area):
 	pass
@@ -319,25 +269,6 @@ func _on_movement_range_area_area_exited(_area):
 #	print("area is outside ", area,self)
 #
 
- 
-
-func _on_attack_range_area_area_entered(area):
-#	print (area.get_parent()," ",  area.get_parent() == self, " ", Globals.action_taking_unit != self, " ", self)
-	if area.get_parent() == self:
-		return
-	if Globals.action_taking_unit != self:
-		return
-	if area.name == "CollisionArea" and area.get_parent() is BattleUnit and not units_in_attack_range.has(area):
-		units_in_attack_range.append(area.get_parent())
-#	print("THESE ARE UNITS IN RANGE NOW", units_in_attack_range)
-func _on_attack_range_area_area_exited(area):
-	if area.get_parent() == self:
-		return
-	if Globals.action_taking_unit!= self:
-		return
-	if area.name == "CollisionArea" and units_in_attack_range.has(area.get_parent()):
-		units_in_attack_range.erase(area.get_parent()) 
-
 func _on_tree_exiting():
 	# remove_from_group("living_units")
 	var other_units = get_tree().get_nodes_in_group("living_units")
@@ -350,10 +281,29 @@ func _on_tree_exiting():
 	get_tree().get_root().add_child(death_image)
  
  
+#
+#func _on_attack_range_area_area_entered(area):
+##	print (area.get_parent()," ",  area.get_parent() == self, " ", Globals.action_taking_unit != self, " ", self)
+#	if area.get_parent() == self:
+#		return
+#	if Globals.action_taking_unit != self:
+#		return
+#	if area.name == "CollisionArea" and area.get_parent() is BattleUnit and not units_in_attack_range.has(area):
+#		units_in_attack_range.append(area.get_parent())
+##	print("THESE ARE UNITS IN RANGE NOW", units_in_attack_range)
+#func _on_attack_range_area_area_exited(area):
+#	if area.get_parent() == self:
+#		return
+#	if Globals.action_taking_unit!= self:
+#		return
+#	if area.name == "CollisionArea" and units_in_attack_range.has(area.get_parent()):
+#		units_in_attack_range.erase(area.get_parent()) 
+
+ 
 #    def try_attack(self, click_pos, attacked_unit):
 #        ####!!!RANGED UNITS ARNET CONNECTED O THIS FUNCTION!!!#####
 #        if attacked_unit in self.enemies_in_range:
-#            self.attack()
+#            self.try_attack()
 #            hit_result = attacked_unit.check_if_hit()  # 80% hit chance
 #            # num_attacks += 1
 #            if hit_result:
@@ -386,7 +336,7 @@ func _on_tree_exiting():
 #                if not blocked:
 #                    self.enemies_in_range.append(enemy)
 #
-#        print("in attack range are", self.enemies_in_range)
+#        print("in try_attack range are", self.enemies_in_range)
 #
  
  
@@ -602,7 +552,7 @@ func _on_tree_exiting():
 #
  
  
-#    def attack(self):
+#    def try_attack(self):
 #        self.remain_actions -= 1
 #        if self.ammo != None:
 #            self.ammo -= 1
@@ -610,7 +560,7 @@ func _on_tree_exiting():
 #    def try_attack(self, click_pos, attacked_unit):
 #        ####!!!RANGED UNITS ARNET CONNECTED O THIS FUNCTION!!!#####
 #        if attacked_unit in self.enemies_in_range:
-#            self.attack()
+#            self.try_attack()
 #            hit_result = attacked_unit.check_if_hit()  # 80% hit chance
 #            # num_attacks += 1
 #            if hit_result:
@@ -803,4 +753,5 @@ func _on_tree_exiting():
 
 
 
+ 
  

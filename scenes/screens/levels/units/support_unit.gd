@@ -13,9 +13,11 @@ func _on_support_action_invalid_support():
 func _ready():
 	super._ready()
 	unit_name = "support_unit"
-func attack():
+## override for the supper funcion
+func process_action():
+	do_supporting_action()
+func do_supporting_action():
 	if Globals.action_taking_unit == self:
-		print("call")
 		support_action.choose_supported()
 #		toggle_attack_screen()
 #func toggle_attack_screen():

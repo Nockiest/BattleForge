@@ -4,8 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://ixa58p2rs7m1" path="res://img/knight.png" id="2_bl1id"]
 [ext_resource type="Script" path="res://scenes/screens/levels/units/CollisionArea.gd" id="4_gcuuy"]
 [ext_resource type="PackedScene" uid="uid://ckpuh02hucwvd" path="res://components/HealthComponent.tscn" id="4_oq3j3"]
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_ue5o7"]
+[ext_resource type="PackedScene" uid="uid://blmv0tqwcbn4s" path="res://components/default_attack_comp.tscn" id="5_a8pq7"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_lag7r"]
 radius = 10.6301
@@ -70,16 +69,6 @@ text = "Attacks:"
 visible = false
 position = Vector2(-8, -8)
 
-[node name="AttackRangeArea" type="Area2D" parent="."]
-visible = false
-light_mask = 2
-
-[node name="AttackRangeShape" type="CollisionShape2D" parent="AttackRangeArea"]
-visible = false
-position = Vector2(25, 24)
-shape = SubResource("CircleShape2D_ue5o7")
-debug_color = Color(0.843137, 0.294118, 0.619608, 0.756863)
-
 [node name="MovementRangeArea" type="Area2D" parent="."]
 visible = false
 light_mask = 2
@@ -100,9 +89,15 @@ position = Vector2(24.5, 24)
 shape = SubResource("RectangleShape2D_n3ojo")
 debug_color = Color(0.835294, 0.301961, 0.623529, 0.419608)
 
+[node name="DefaultAttackComp" parent="." instance=ExtResource("5_a8pq7")]
+unique_name_in_owner = true
+position = Vector2(25, 24)
+rotation = 0.239694
+
 [connection signal="tree_exiting" from="." to="." method="_on_tree_exiting"]
 [connection signal="hp_changed" from="HealthComponent" to="." method="_on_health_component_hp_changed"]
-[connection signal="area_entered" from="AttackRangeArea" to="." method="_on_attack_range_area_area_entered"]
-[connection signal="area_exited" from="AttackRangeArea" to="." method="_on_attack_range_area_area_exited"]
 [connection signal="area_entered" from="MovementRangeArea" to="." method="_on_movement_range_area_area_entered"]
 [connection signal="area_exited" from="MovementRangeArea" to="." method="_on_movement_range_area_area_exited"]
+[connection signal="remain_attacks_updated" from="DefaultAttackComp" to="." method="_on_default_attack_comp_remain_attacks_updated"]
+
+[editable path="DefaultAttackComp"]

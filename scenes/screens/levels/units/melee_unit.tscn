@@ -24,3 +24,5 @@ frame_progress = 1.0
 [node name="melee_attack_comp" parent="." index="8" instance=ExtResource("4_uxegk")]
 visible = false
 position = Vector2(18, 13)
+
+[editable path="DefaultAttackComp"]

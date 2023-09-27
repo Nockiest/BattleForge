@@ -9,9 +9,9 @@ func _ready():
 	$SupportConnnection.modulate = color
 	$AnimatedSprite2D.hide()  # Hide the AnimatedSprite node on ready
  
-func _on_next_turn():
-	print("NEXT TURN")
-	
+#func _on_next_turn():
+#	print("NEXT TURN")
+#
 func provide_buffs():
 	super.provide_buffs()
 	if supported_entity:

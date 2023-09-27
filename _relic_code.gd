@@ -52,3 +52,7 @@
 	
 	#var unit_types = ["cannon", "pikeman", "shield", "medic", "knight", "musketeer"]
 #var unit_images = [preload("res://img/cannon.png"), preload("res://img/pikeman.png"), preload("res://img/shield.png"), preload("res://img/medic.png"), preload("res://img/knight.png"), preload("res://img/musketeer.png")]
+
+#func _process(delta):
+#	queue_redraw() 
+ 

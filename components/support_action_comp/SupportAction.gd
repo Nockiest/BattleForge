@@ -7,6 +7,7 @@ var constant_buff = true
 var buff_already_applied = false
 var color = Color(1, 0.75, 0.8)#pink
 var area_support = false
+var support_range = 150
 func _ready():
 	$SupportConnnection.modulate = color
 	$SupportConnnection.z_index = 1000
@@ -30,7 +31,7 @@ func check_can_support():
 	if Globals.action_taking_unit  != get_parent():
 		print(get_parent()," 4")
 		return false
-	if get_parent().center.distance_to(Globals.hovered_unit.center) > get_parent().attack_range:
+	if get_parent().center.distance_to(Globals.hovered_unit.center) > support_range:
 		print(get_parent()," 5")
 		return false
 	return true
@@ -76,7 +77,7 @@ func draw_line_to_supported_entity():
 		# Calculate the distance between the start and end points
 		var distance = local_start.distance_to(local_end)
 
-		if distance > get_parent().attack_range:
+		if distance > support_range:
 			deselect_supported_entity()
 			return
 func _process(_delta):

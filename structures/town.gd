@@ -47,8 +47,7 @@ func _on_area_entered(area):
 #	occuping_units[parent_color]  
 
 func _on_area_exited(area):
-#	if area.get_parent() is BattleUnit:
-#	if occuping_units[area.get_parent().color]:
+ 
 	if not (area is UnitMainCollisionArea):
 		return
 	if area.get_parent() not in units_inside:
@@ -75,7 +74,6 @@ func check_who_occupied():
 	elif red_count > blue_count:
 		team_alligiance = "red"
 	
-	print("TEAM ALIGIENCE", team_alligiance)
  
 func change_edge_color():
 	if team_alligiance == "blue":

@@ -5,6 +5,6 @@ class_name Canon
 func _ready():
 	super._ready()
 	unit_name =  "canon"
-	$RangedAttackComp.projectile_scene = preload("res://scenes/screens/levels/projectiles/canon_ball.tscn")
+	attack_component.projectile_scene = preload("res://scenes/screens/levels/projectiles/canon_ball.tscn")
 
  

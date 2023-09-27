@@ -40,13 +40,13 @@ func _ready():
 		$Structures.add_child(supply_depo_instance)
  
 func _on_blue_buy_area_buy_unit(cost):
-	print("buying unit", cost)
-	print(Globals.cur_player)
+	print("buying unit", cost, Globals.cur_player)
+  
  
 	
 func _on_red_buy_area_buy_unit(cost):
-	print("buying unit", cost)
-	print(Globals.cur_player)
+	print("buying unit", cost, Globals.cur_player)
+ 
  
 func _input(event):
 	if event is InputEventMouseMotion:
@@ -68,7 +68,6 @@ func _on_canvas_next_turn_pressed():
 #		print (support_action, " supportaction ", support_action.get_parent())
 		support_action.provide_buffs()
 	for town in towns:
-		print("STRUCTURE ", town )
 		town.make_next_turn_calculations()
 	for depo in Supply_depos:
 		var resupply_action = depo.get_node("AreaResupplyAction")
@@ -80,15 +79,14 @@ func give_money_income_to_players():
 	var blue_towns = 0
 	var towns = get_tree().get_nodes_in_group("towns")
 	for town in towns:
-		print("STRUCTURE ", town )
 		if town.team_alligiance == "red":
 			red_towns += 1
 		elif town.team_alligiance == "blue":
 			blue_towns += 1
-	print(red_towns, blue_towns, " BLUE AND RED TOWNS")
+#	print(red_towns, blue_towns, " BLUE AND RED TOWNS")
 	Globals.blue_player_money += per_turn_income + blue_towns*10
 	Globals.red_player_money += per_turn_income + red_towns*10
-	print(Globals.blue_player_money,Globals.red_player_money )
+
 
 func update_tender(new_value, color):
 	print("UPDATING TENDER TO ", new_value, color) 

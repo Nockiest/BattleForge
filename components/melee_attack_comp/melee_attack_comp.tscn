@@ -52,7 +52,7 @@ animations = [{
 [node name="melee_attack_comp" instance=ExtResource("1_8lmoj")]
 script = ExtResource("1_wafpm")
 
-[node name="AttackAnimation" parent="." index="1"]
+[node name="AttackAnimation" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_01h08")
 
 [node name="SlashAnimation" type="AnimatedSprite2D" parent="." index="2"]

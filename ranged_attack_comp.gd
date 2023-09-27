@@ -14,18 +14,42 @@ var max_ammo: int
 func _ready():
 	super._ready()
 	$BlastAnimation.hide()
-	connect("bullet_shot", _on_bullet_shot)   
 
-func attack( ):
-	super.attack( )
-	## ten check na hovered unit asi nepotřebujiu
-	if Globals.hovered_unit   and ammo > 0:
-		var direction = (Globals.hovered_unit.global_position - global_position).normalized()
-#		bullet_shot.emit(start, direction) 
-		_on_bullet_shot(get_parent().center, direction)
-		ammo-=1
+func toggle_attack_screen():
+	print(ammo," AMMO WHEN TOGGLING")
+	if ammo <= 0:
+		return
+ 
+	super.toggle_attack_screen()
+	
+func update_for_next_turn():
+	super.update_for_next_turn()
+	ammo += 1
+	
+func try_attack():
+	print("LAUNCHED XXXXXXXXXXXXXXXXXXXXXXX", ammo)
+	if    ammo < 0:
+		return false
+	if super.try_attack() != "SUCESS":
+		print("ATTACK FAILED")
+		return false
+	return true
+	print("PROCEEDING ", ammo)
+ 
+		
+func attack():
+	Globals.last_attacker = get_parent()
+	remain_attacks -=1
+	var direction = (Globals.hovered_unit.global_position - global_position).normalized()
+	shoot_bullet(get_parent().center, direction)
+	ammo-=1
+func check_can_attack():
+	if ammo <= 0:
+		return false
+		toggle_attack_screen()
+	return super.check_can_attack()
 
-func _on_bullet_shot(pos, direction):
+func shoot_bullet(pos, direction):
 	var bullet = projectile_scene.instantiate() as Area2D
 	# Set the position and direction of the bullet
 	bullet.position = pos
@@ -42,7 +66,7 @@ func _on_bullet_shot(pos, direction):
 	var projectiles = get_tree().get_root().get_node("BattleGround").get_node("Projectiles")
 	projectiles.add_child(bullet)
 	print("BULLET SHOT", projectiles)
-# Assuming $AnimatedSprite is the path to your AnimatedSprite node
+ 
 	print(direction.angle(), direction)
 	$BlastAnimation.show()
 	$BlastAnimation.rotation = direction.angle() - PI/2 *3

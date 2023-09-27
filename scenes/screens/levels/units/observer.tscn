@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://dbup65q352sir"]
+[gd_scene load_steps=7 format=3 uid="uid://dbup65q352sir"]
 
 [ext_resource type="PackedScene" uid="uid://b8esb3nkgltuq" path="res://scenes/screens/levels/units/support_unit.tscn" id="1_26knn"]
 [ext_resource type="Texture2D" uid="uid://ceeetyqcgouuh" path="res://img/observer.png" id="2_8ghb8"]
 [ext_resource type="Script" path="res://scenes/screens/levels/units/observer.gd" id="2_o3tl6"]
 [ext_resource type="PackedScene" uid="uid://da6m8xjnk2ovm" path="res://components/support_action_comp/observe_action.tscn" id="4_r6a0c"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ue5o7"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hvkvo"]
 size = Vector2(49, 48)
@@ -25,12 +27,14 @@ text = ""
 visible = true
 position = Vector2(-6, -8)
 
-[node name="AttackRangeArea" parent="." index="5"]
-visible = true
+[node name="AttackRangeArea" type="Area2D" parent="." index="5"]
+light_mask = 2
 
-[node name="AttackRangeShape" parent="AttackRangeArea" index="0"]
-visible = true
+[node name="AttackRangeShape" type="CollisionShape2D" parent="AttackRangeArea" index="0"]
 z_index = 4096
+position = Vector2(25, 24)
+shape = SubResource("CircleShape2D_ue5o7")
+debug_color = Color(0.843137, 0.294118, 0.619608, 0.756863)
 
 [node name="ObserveAction" parent="." index="6" groups=["SupportActions"] instance=ExtResource("4_r6a0c")]
 
@@ -48,6 +52,12 @@ metadata/_edit_lock_ = true
 visibility_layer = 1
 shape = SubResource("RectangleShape2D_hvkvo")
 
+[node name="editable" type="Node2D" parent="." index="9"]
+
+[connection signal="area_entered" from="AttackRangeArea" to="." method="_on_attack_range_area_area_entered" flags=18]
+[connection signal="area_exited" from="AttackRangeArea" to="." method="_on_attack_range_area_area_exited" flags=18]
 [connection signal="area_entered" from="CollisionArea" to="." method="_on_area_2d_area_entered" flags=18]
 [connection signal="mouse_entered" from="CollisionArea" to="." method="_on_collision_area_mouse_entered" flags=18]
 [connection signal="mouse_exited" from="CollisionArea" to="." method="_on_collision_area_mouse_exited" flags=18]
+
+[editable path="DefaultAttackComp"]
