@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://bgvb6trxfq5n7"]
+
+[node name="Node2D" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="VScrollBar" type="ScrollContainer" parent="."]
+layout_mode = 0
+offset_right = 85.0
+offset_bottom = 115.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VScrollBar"]
+z_index = 2
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VScrollBar/VBoxContainer"]
+layout_mode = 2
+text = "text"
+
+[node name="Label2" type="Label" parent="VScrollBar/VBoxContainer"]
+layout_mode = 2
+text = "text"
+
+[node name="Label3" type="Label" parent="VScrollBar/VBoxContainer"]
+layout_mode = 2
+text = "text"
+
+[node name="Label4" type="Label" parent="VScrollBar/VBoxContainer"]
+layout_mode = 2
+text = "text"
+
+[node name="Label5" type="Label" parent="VScrollBar/VBoxContainer"]
+layout_mode = 2
+text = "text"
+
+[node name="Label6" type="Label" parent="VScrollBar/VBoxContainer"]
+layout_mode = 2
+text = "text"
