@@ -98,6 +98,5 @@ rotation = 0.239694
 [connection signal="hp_changed" from="HealthComponent" to="." method="_on_health_component_hp_changed"]
 [connection signal="area_entered" from="MovementRangeArea" to="." method="_on_movement_range_area_area_entered"]
 [connection signal="area_exited" from="MovementRangeArea" to="." method="_on_movement_range_area_area_exited"]
-[connection signal="remain_attacks_updated" from="DefaultAttackComp" to="." method="_on_default_attack_comp_remain_attacks_updated"]
 
 [editable path="DefaultAttackComp"]

@@ -20,7 +20,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 0.623529, 0, 1)
 
-[node name="VScrollBar" type="VScrollBar" parent="ColorRect"]
+[node name="VScrollBar" type="ScrollContainer" parent="ColorRect"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,14 +31,7 @@ mouse_force_pass_scroll_events = false
 mouse_default_cursor_shape = 6
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/VScrollBar"]
-layout_mode = 1
-anchors_preset = 11
-anchor_left = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -97.0
-grow_horizontal = 0
-grow_vertical = 2
+layout_mode = 2
 metadata/_edit_use_anchors_ = true
 
 [node name="Money" parent="ColorRect/VScrollBar/VBoxContainer" instance=ExtResource("1_shtdr")]

@@ -29,8 +29,8 @@ func try_attack():
 func attack():
 	Globals.last_attacker = get_parent()
 	Globals.hovered_unit.get_node("HealthComponent").hit(1) 
-	remain_attacks -=1
-# toggle_attack_screen()
+	remain_actions -=1
+# toggle_action_screen()
 #func play_attack_animation(attacked_entity):
 #	$SlashAnimation.z_index = 1000
 #	#	slash_animation.position = Globals.hovered_unit.position #.ZERO  # Center of the unit

@@ -39,7 +39,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "Ammo:"
 
-[node name="RangedAttackComp" parent="." index="10" instance=ExtResource("4_5x482")]
+[node name="RangedAttackComp" parent="." index="9" instance=ExtResource("4_5x482")]
 position = Vector2(25, 24)
 
 [connection signal="ammo_changed" from="DefaultAttackComp@RangedAttackComp" to="." method="_on_ranged_attack_comp_ammo_changed"]

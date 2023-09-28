@@ -4,10 +4,19 @@ var num_houses:int = 5
 @onready var rect_shape =  $CollisionShape2D.shape as RectangleShape2D  # Access the RectangleShape2D
 # Called when the node enters the scene tree for the first time.
 var units_inside: Array
-var team_alligiance
-func _ready():
-#	place_house()
-	pass
+var team_alligiance 
+
+func _process(delta):
+	if  Globals.placed_unit == null:
+		$ColorRect.modulate = Color("#8B0000") 
+		return
+	if   team_alligiance == null:
+		$ColorRect.modulate = Color("#8B0000")
+		return
+	if Globals.placed_unit.color == Color(team_alligiance):
+		$ColorRect.modulate = Color(team_alligiance)
+#	else:
+#		$ColorRect.modulate = ## default color
 	## make sure that collision shape in house scene is stil on index 0 otherwise it wont work
 func place_house():
 	for house in range(num_houses):

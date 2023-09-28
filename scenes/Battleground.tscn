@@ -19,13 +19,11 @@ script = ExtResource("1_conv3")
 position = Vector2(575, 322)
 
 [node name="RedBuyArea" parent="." instance=ExtResource("6_tkc11")]
-visible = false
 position = Vector2(-1, 56)
 team = "red"
 metadata/_edit_lock_ = true
 
 [node name="BlueBuyArea" parent="." instance=ExtResource("6_tkc11")]
-visible = false
 position = Vector2(962, 39)
 
 [node name="Structures" type="Node2D" parent="."]

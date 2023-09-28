@@ -25,23 +25,16 @@ text = ""
 visible = true
 position = Vector2(-6, -8)
 
-[node name="AttackRangeArea" parent="." index="5"]
-visible = true
-
-[node name="AttackRangeShape" parent="AttackRangeArea" index="0"]
-visible = true
-z_index = 4096
-
-[node name="ResupplyAction" parent="." index="6" groups=["SupportActions"] instance=ExtResource("3_40yky")]
-
-[node name="MovementRangeArea" parent="." index="7"]
+[node name="MovementRangeArea" parent="." index="5"]
 visible = true
 
 [node name="MovementRangeArea" parent="MovementRangeArea" index="0"]
 visible = true
 z_index = 4096
 
-[node name="CollisionArea" parent="." index="8" groups=["unit_collision_areas"]]
+[node name="ResupplyAction" parent="." index="6" groups=["SupportActions"] instance=ExtResource("3_40yky")]
+
+[node name="CollisionArea" parent="." index="7" groups=["unit_collision_areas"]]
 metadata/_edit_lock_ = true
 
 [node name="CollisionShape2D" parent="CollisionArea" index="0"]
@@ -51,3 +44,5 @@ shape = SubResource("RectangleShape2D_hvkvo")
 [connection signal="area_entered" from="CollisionArea" to="." method="_on_area_2d_area_entered" flags=18]
 [connection signal="mouse_entered" from="CollisionArea" to="." method="_on_collision_area_mouse_entered" flags=18]
 [connection signal="mouse_exited" from="CollisionArea" to="." method="_on_collision_area_mouse_exited" flags=18]
+
+[editable path="DefaultAttackComp"]

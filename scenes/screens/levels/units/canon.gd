@@ -5,6 +5,6 @@ class_name Canon
 func _ready():
 	super._ready()
 	unit_name =  "canon"
-	attack_component.projectile_scene = preload("res://scenes/screens/levels/projectiles/canon_ball.tscn")
+	action_component.projectile_scene = preload("res://scenes/screens/levels/projectiles/canon_ball.tscn")
 
  

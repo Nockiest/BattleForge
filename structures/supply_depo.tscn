@@ -5,14 +5,13 @@
 [ext_resource type="PackedScene" uid="uid://b41i8fpfpxsxu" path="res://components/support_action_comp/area_resupply_action.tscn" id="3_73h2c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0k2fe"]
-size = Vector2(28, 32)
+size = Vector2(27, 32)
 
 [node name="Supply_depo" groups=["structures", "supply_depos"] instance=ExtResource("1_1ub7h")]
 position = Vector2(-1, 2)
 
 [node name="CollisionShape2D" parent="." index="0"]
-visible = false
-position = Vector2(2, -1)
+position = Vector2(2.5, -1)
 shape = SubResource("RectangleShape2D_0k2fe")
 debug_color = Color(0, 0.6, 0.701961, 0.419608)
 
@@ -30,13 +29,7 @@ texture = ExtResource("2_7800j")
 [node name="Marker2D" type="Marker2D" parent="." index="3"]
 position = Vector2(2, -3)
 
-[node name="SupplyRangeArea" type="Area2D" parent="." index="4"]
-visible = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="SupplyRangeArea" index="0"]
-visible = false
-
-[node name="AreaResupplyAction" parent="." index="5" instance=ExtResource("3_73h2c")]
+[node name="AreaResupplyAction" parent="." index="4" instance=ExtResource("3_73h2c")]
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

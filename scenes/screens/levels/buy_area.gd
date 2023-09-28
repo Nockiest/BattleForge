@@ -5,12 +5,15 @@ var units_inside:Array = []
 
 # 
  
+func _ready():
+	var color = Color(team)
+	color.a = 0.3  # Set alpha to 0.5 for semi-transparency
+	$ColorRect.modulate = color
 func _process(delta):
-	print(Globals.placed_unit)
-	if Globals.placed_unit:
-		$Sprite2D.show()
+	if Globals.placed_unit != null:
+		$ColorRect.show()
 	else:
-		$Sprite2D.hide()
+		$ColorRect.hide()
 
 #func _draw():
 #	if Globals.placed_unit != null:

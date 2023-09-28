@@ -15,12 +15,12 @@ func _ready():
 	super._ready()
 	$BlastAnimation.hide()
 
-func toggle_attack_screen():
+func toggle_action_screen():
 	print(ammo," AMMO WHEN TOGGLING")
 	if ammo <= 0:
 		return
  
-	super.toggle_attack_screen()
+	super.toggle_action_screen()
 	
 func update_for_next_turn():
 	super.update_for_next_turn()
@@ -39,14 +39,14 @@ func try_attack():
 		
 func attack():
 	Globals.last_attacker = get_parent()
-	remain_attacks -=1
+	remain_actions -=1
 	var direction = (Globals.hovered_unit.global_position - global_position).normalized()
 	shoot_bullet(get_parent().center, direction)
 	ammo-=1
 func check_can_attack():
 	if ammo <= 0:
 		return false
-		toggle_attack_screen()
+		toggle_action_screen()
 	return super.check_can_attack()
 
 func shoot_bullet(pos, direction):

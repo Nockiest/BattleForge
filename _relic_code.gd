@@ -1,4 +1,4 @@
-# toggle_attack_screen()
+# toggle_action_screen()
 #func play_attack_animation(attacked_entity):
 #	$SlashAnimation.z_index = 1000
 #	#	slash_animation.position = Globals.hovered_unit.position #.ZERO  # Center of the unit

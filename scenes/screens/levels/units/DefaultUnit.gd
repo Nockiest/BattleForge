@@ -7,7 +7,7 @@ signal bought(cost)
 signal died(this)
 const base_movement:int = 1
 const base_movement_range:int = 250  
-@onready var attack_component = %DefaultAttackComp
+@onready var action_component = %DefaultAttackComp
 var death_image_scene:PackedScene = preload("res://scenes/screens/levels/sprite_with_timer.tscn")
  
 var remain_movement:int = base_movement:
@@ -40,8 +40,8 @@ func _ready():
 	$MovementRangeArea/MovementRangeArea.shape.radius = base_movement_range
 	$MovementRangeArea/MovementRangeArea.hide()
 	emit_signal("bought", cost)
-#	attack_component.connect() update_stats_bar()
-	attack_component.center = center
+#	action_component.connect() update_stats_bar()
+	action_component.center = center
 	if  is_newly_bought:
 		Globals.placed_unit = self
 		print("position not set")
@@ -80,14 +80,15 @@ func move():
 		position = new_position
 		original_position = new_position
 		center =  $CollisionArea.to_global($CollisionArea/CollisionShape2D.position + $CollisionArea/CollisionShape2D.shape.extents/2)
-		attack_component.center = center
+		action_component.center = center
 		#MovementPosition CollisionShape
 		$MovementRangeArea/MovementRangeArea.position = center - Vector2($MovementRangeArea/MovementRangeArea.shape.radius, $MovementRangeArea/MovementRangeArea.shape.radius)
 
 	else:
-		position = start_turn_position  # Revert to original position if collision detected
-		toggle_move()
-		remain_movement+= 1
+		abort_movement()
+#		position = start_turn_position  # Revert to original position if collision detected
+#		toggle_move()
+#		remain_movement+= 1
  
  
 func _draw():
@@ -106,24 +107,25 @@ func add_to_team(team):
 	color_rect.modulate = color
 
 func process_action():
-	attack_component.try_attack()
+	action_component.try_attack()
 
 func process_input():
-	
 	if Color(Globals.cur_player)!=  color :
 		return
-	if Globals.hovered_unit == self : 
+	elif Globals.moving_unit == self and Input.is_action_just_pressed("right_click"): 
+		abort_movement()
+	elif Globals.hovered_unit == self : 
 		if Input.is_action_just_pressed("left_click"): 
 			toggle_move()
 		if Input.is_action_just_pressed("right_click"):
 			print("TOGGLING SCREEN", self)
-			attack_component.toggle_attack_screen()
-	else:
-		if Globals.action_taking_unit != self:
-			return
+			action_component.toggle_action_screen()
+	elif  Globals.action_taking_unit == self:
 		if Input.is_action_just_pressed("right_click") :
 			process_action()
-
+#	elif Globals.moving_unit == self:
+#		if Input.is_action_just_pressed("right_click") :
+#			toggle_move()
 func process_unit_placement():
 	if Input.is_action_just_pressed("left_click"): 
 #		print(Globals.hovered_unit, "PROCESSING UNIT PLACEMENT")
@@ -171,10 +173,26 @@ func _process(_delta):
 	if Globals.placed_unit != null:
 		return
 	process_input()
- 
+#	if Globals.action_taking_unit == self  :
+#		var other_units = get_tree().get_nodes_in_group("living_units")
+#		var in_attack_range = action_component.units_in_action_range
+#		print("IN ATTACK RANGE", in_attack_range)
+#		for unit in other_units:
+#
+#			if in_attack_range.has(unit):
+#				print(unit, in_attack_range)
+#				unit.get_node("ColorRect").modulate = Color("white")
+#			else:
+#				unit.get_node("ColorRect").modulate = Color("white")
+			
 	if Globals.moving_unit == self:
 		move() 
- 
+
+#func highlight_units_in_range(): 
+func abort_movement():
+	position = start_turn_position
+	Globals.moving_unit = null
+	
 func deselect_movement():
 	if Globals.moving_unit == self:
 		remain_movement -= 1
@@ -202,8 +220,7 @@ func toggle_move():
 	Globals.moving_unit = self
 	Globals.action_taking_unit = null
  
-#attack_component
-
+ 
 func set_new_start_turn_point():
 	center =$CollisionArea/CollisionShape2D.global_position +$CollisionArea/CollisionShape2D.shape.extents/2 
 	print("CENTER", center)
@@ -211,10 +228,10 @@ func set_new_start_turn_point():
 
 func update_for_next_turn():
 	remain_movement =  base_movement 
-#	remain_attacks = attack_component.base_attacks
+#	remain_actions = action_component.base_actions
 	if has_node("RangedAttackComp"):
 		$RangedAttackComp.ammo += 1
-	attack_component.update_for_next_turn()	
+	action_component.update_for_next_turn()	
 #	if  has_node("HealthComponent"):
 #		$HealthComponent.heal(1)
 
@@ -246,7 +263,7 @@ func toggle_show_information():
 func update_stats_bar():
 	$UnitStatsBar/VBoxContainer/Health.text = "Health "+str($HealthComponent.hp)
 	$UnitStatsBar/VBoxContainer/Actions.text = "Moves "+str(remain_movement)
-	$UnitStatsBar/VBoxContainer/Attacks.text = "Attacks "+str(attack_component.remain_attacks)
+#	$UnitStatsBar/VBoxContainer/Attacks.text = "Attacks "+str(action_component.remain_actions)
 
 func _on_movement_range_area_area_entered(_area):
 	pass
@@ -254,7 +271,7 @@ func _on_movement_range_area_area_entered(_area):
 #		return
 #	if Globals.moving_unit != self:
 #		return
-#	units_in_attack_range.add(area)
+#	units_in_action_range.add(area)
 #	print("area is inside ", area, self)
 #	print("THESE ARE UNITS IN RANGE NOW")
 
@@ -265,7 +282,7 @@ func _on_movement_range_area_area_exited(_area):
 #	if Globals.moving_unit != self:
 #		return
 #
-#	units_in_attack_range.remove(area)
+#	units_in_action_range.remove(area)
 #	print("area is outside ", area,self)
 #
 
@@ -288,16 +305,16 @@ func _on_tree_exiting():
 #		return
 #	if Globals.action_taking_unit != self:
 #		return
-#	if area.name == "CollisionArea" and area.get_parent() is BattleUnit and not units_in_attack_range.has(area):
-#		units_in_attack_range.append(area.get_parent())
-##	print("THESE ARE UNITS IN RANGE NOW", units_in_attack_range)
+#	if area.name == "CollisionArea" and area.get_parent() is BattleUnit and not units_in_action_range.has(area):
+#		units_in_action_range.append(area.get_parent())
+##	print("THESE ARE UNITS IN RANGE NOW", units_in_action_range)
 #func _on_attack_range_area_area_exited(area):
 #	if area.get_parent() == self:
 #		return
 #	if Globals.action_taking_unit!= self:
 #		return
-#	if area.name == "CollisionArea" and units_in_attack_range.has(area.get_parent()):
-#		units_in_attack_range.erase(area.get_parent()) 
+#	if area.name == "CollisionArea" and units_in_action_range.has(area.get_parent()):
+#		units_in_action_range.erase(area.get_parent()) 
 
  
 #    def try_attack(self, click_pos, attacked_unit):
