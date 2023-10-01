@@ -1,11 +1,11 @@
 extends Node
 
-func lighten_color(color: Color, amount: float) -> Color:
-	
-	var h = color.h
-	var s = color.s
-	var v = min(color.v - amount, 1)
-	return Color.from_hsv(h, s, v, color.a)
+#func lighten_color(color: Color, amount: float) -> Color:
+#
+#	var h = color.h
+#	var s = color.s
+#	var v = min(color.v - amount, 1)
+#	return Color.from_hsv(h, s, v, color.a)
  
 func is_town_far_enough(  new_coors, min_distance, towns):
 	for town in towns:
@@ -74,41 +74,32 @@ func get_random_point_in_square(square_size: Vector2) -> Vector2:
 	var random_x = randi_range(0, int(square_size.x))
 	var random_y = randi_range(0, int(square_size.y))
 	return Vector2(random_x, random_y)
-	
 
-#func display_image_for_duration(image_path: String, duration: float, position: Vector2):
-#    # Create a new Sprite node
-#	var sprite = Sprite.new()
-#	# Load your image into the Sprite node
-#	sprite.texture = load(image_path)
-#	# Position the Sprite node at the specified position
-#	sprite.position = position
-#
-#	# Add the Sprite node to the scene tree
-#	get_tree().get_root().add_child(sprite)
-#
-#	# Create a new Timer node
-#	var timer = Timer.new()
-#	timer.wait_time = duration  # Set the timer to wait for the specified duration
-#	timer.one_shot = true  # Set the timer to only run once
-#
-#	# Connect the timeout signal of the Timer node to a function that removes the Sprite node
-#	timer.connect("timeout", self, "_on_timer_timeout", [sprite])
-#
-#	# Add the Timer node to the scene tree and start it
-#	get_tree().get_root().add_child(timer)
-#	timer.start()
-#
+## doesnt work how I intended
+func lighten_color(color: Color, points: int) -> Color:
+	# Convert the color to RGB format
+	var r = int(color.r * 255)
+	var g = int(color.g * 255)
+	var b = int(color.b * 255)
+
+	# Subtract the specified number of points from each color component
+	r = max(0, r - points)
+	g = max(0, g - points)
+	b = max(0, b - points)
+
+	# Convert the lightened color back to Color format
+	return Color(r / 255.0, g / 255.0, b / 255.0)
+ 
 #func _on_timer_timeout(sprite):
 #    # Remove the Sprite node from the scene tree when the timer times out
 #	sprite.queue_free()
 #func move():
 #	var mouse_pos = get_global_mouse_position()
-#	var distance_to_mouse = start_turn_position.distance_to(mouse_pos)
+#	var distance_to_mouse = global_start_turn_position.distance_to(mouse_pos)
 #	var new_position = position
 #	if distance_to_mouse > base_movement:
-#		var direction_to_mouse = (mouse_pos - start_turn_position).normalized()
-#		new_position = start_turn_position + direction_to_mouse * base_movement - size / 2
+#		var direction_to_mouse = (mouse_pos - global_start_turn_position).normalized()
+#		new_position = global_start_turn_position + direction_to_mouse * base_movement - size / 2
 #	else:
 #		new_position = mouse_pos - size / 2
 #	var temp_area = Area2D.new()
@@ -139,7 +130,7 @@ func get_random_point_in_square(square_size: Vector2) -> Vector2:
 #	# Calculate the direction and distance to the mouse position.
 #	var direction = (mouse_pos - position).normalized()
 #	var distance = position.distance_to(mouse_pos)
-#	var distance_to_mouse = start_turn_position.distance_to(mouse_pos)
+#	var distance_to_mouse = global_start_turn_position.distance_to(mouse_pos)
 #	# Move the character towards the mouse position.
 #	var velocity = direction * speed
 #	# Check if the character has reached the mouse position.

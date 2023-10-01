@@ -1,6 +1,7 @@
 extends SupportUnit
 
 func _ready():
-	super._ready()
-	support_action = $ObserveAction  
+	support_action =$ActionComponent/ObserveAction  
 	unit_name = "observer"
+	super._ready()
+ 

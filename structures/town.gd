@@ -1,3 +1,4 @@
+class_name Town
 extends Area2D
 var house_scene:PackedScene = preload("res://structures/house.tscn")  # get the house.tscn
 var num_houses:int = 5
@@ -6,15 +7,16 @@ var num_houses:int = 5
 var units_inside: Array
 var team_alligiance 
 
-func _process(delta):
+func _process(_delta):
 	if  Globals.placed_unit == null:
 		$ColorRect.modulate = Color("#8B0000") 
 		return
 	if   team_alligiance == null:
 		$ColorRect.modulate = Color("#8B0000")
 		return
+
 	if Globals.placed_unit.color == Color(team_alligiance):
-		$ColorRect.modulate = Color(team_alligiance)
+		$ColorRect.modulate = Color("white")#Utils.lighten_color( Color(team_alligiance), 150) 
 #	else:
 #		$ColorRect.modulate = ## default color
 	## make sure that collision shape in house scene is stil on index 0 otherwise it wont work
@@ -47,17 +49,19 @@ func is_area_occupied(area):
  
  
 func _on_area_entered(area): 
-	if not(area is UnitMainCollisionArea):
+	if area is Town:
+		print("HAD TO DESTROY ITSELF BECAUSE OVERLAPED ANOTHER TOWN")
+		queue_free()
+	if not(area is UnitsMainCollisionArea):
 		return
 	if not (area.get_parent() is BattleUnit):
 		return
 	print("UNIT ENTERED TOWN ",  area.get_parent())
 	units_inside.append(area.get_parent())
-#	occuping_units[parent_color]  
 
 func _on_area_exited(area):
  
-	if not (area is UnitMainCollisionArea):
+	if not (area is UnitsMainCollisionArea):
 		return
 	if area.get_parent() not in units_inside:
 		return

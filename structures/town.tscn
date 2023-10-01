@@ -4,14 +4,18 @@
 [ext_resource type="Script" path="res://structures/town.gd" id="2_bdpkq"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_t2ihe"]
-size = Vector2(139, 134)
+size = Vector2(143, 142)
 
 [node name="Town" groups=["structures", "towns"] instance=ExtResource("1_h84n4")]
+light_mask = 4
+visibility_layer = 5
 collision_layer = 2
+collision_mask = 3
+input_pickable = false
 script = ExtResource("2_bdpkq")
 
 [node name="CollisionShape2D" parent="." index="0"]
-position = Vector2(70.5, 67)
+position = Vector2(70.5, 71)
 shape = SubResource("RectangleShape2D_t2ihe")
 
 [node name="Edge" type="ColorRect" parent="." index="1"]

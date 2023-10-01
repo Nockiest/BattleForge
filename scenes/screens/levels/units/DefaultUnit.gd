@@ -7,18 +7,17 @@ signal bought(cost)
 signal died(this)
 const base_movement:int = 1
 const base_movement_range:int = 250  
-@onready var action_component = %DefaultAttackComp
+var action_component 
 var death_image_scene:PackedScene = preload("res://scenes/screens/levels/sprite_with_timer.tscn")
- 
 var remain_movement:int = base_movement:
 	set(new_movement):
 		remain_movement = new_movement
 		update_stats_bar()
  
 var attack_resistances =  {"base_resistance":  0.1  }  
-@onready var center = $CollisionArea/CollisionShape2D.global_position +$CollisionArea/CollisionShape2D.shape.extents/2 
-@onready var size = $CollisionArea/CollisionShape2D.shape.extents * 2
-@onready var start_turn_position :Vector2 = get_global_transform().get_origin() # Vector2((position[0]+round(size[0]/2)),(position[1]+round(size[1]/2)))
+@onready var center = $CollisionShape2D.global_position +$CollisionShape2D.shape.extents/2 
+@onready var size = $CollisionShape2D.shape.extents * 2
+@onready var global_start_turn_position :Vector2 = get_global_transform().get_origin() # Vector2((position[0]+round(size[0]/2)),(position[1]+round(size[1]/2)))
 @onready var buy_areas = get_tree().get_nodes_in_group("buy_areas")
 
 var cost:int = 20
@@ -30,26 +29,27 @@ var start_hp: int = 2
 var is_newly_bought = true
  
 func _ready():
+	# The code here has to come after the code in th echildren compoennts
 	$UnitStatsBar.hide()
 	$HealthComponent.hide()
-#	$DeathSprite.hide() 
 	$HealthComponent/HealthBar.value = start_hp
 	$HealthComponent.hp = start_hp
+	$movement_comp.parent_size =  size 
+#	$ActionComponent.position = to_local(center)
+#	action_component.position = to_local(center)
 	update_stats_bar()
-	$MovementRangeArea/MovementRangeArea.shape = CircleShape2D.new()
-	$MovementRangeArea/MovementRangeArea.shape.radius = base_movement_range
-	$MovementRangeArea/MovementRangeArea.hide()
 	emit_signal("bought", cost)
-#	action_component.connect() update_stats_bar()
-	action_component.center = center
+	if action_component != null:
+		action_component.center = center
+		action_component.owner = self
 	if  is_newly_bought:
 		Globals.placed_unit = self
-		print("position not set")
-
-
-func _on_default_attack_comp_remain_attacks_updated(new_attacks):
-	update_stats_bar()
+		Globals.hovered_unit = null
+#		print("position not set")
 	
+func _on_default_attack_comp_remain_attacks_updated(_new_attacks):
+	update_stats_bar()
+
 func get_boost():
 	print("THIS UNIT DOESNT HAVE A BOOST FOR KILLING A UNIT")
 
@@ -57,16 +57,8 @@ func _on_area_2d_area_entered(area):
 	emit_signal("interferes_with_area", area)
 
 func move():
-	var mouse_pos = get_global_mouse_position()
-	var distance_to_mouse = start_turn_position.distance_to(mouse_pos)
-	var new_position = position
-	if distance_to_mouse > base_movement_range:
-		var direction_to_mouse = (mouse_pos - start_turn_position).normalized()
-		new_position = start_turn_position + direction_to_mouse * base_movement_range - size / 2
-	else:
-		new_position = mouse_pos - size / 2
-
-	# Check for collisions with other units.
+	position = $movement_comp.move(size,center)
+	center = $CollisionArea/CollisionShape2D.global_position +$CollisionArea/CollisionShape2D.shape.extents/2 
 	var can_move = true
 	for unit in get_tree().get_nodes_in_group("living_units"):
 		if unit == self:
@@ -74,25 +66,11 @@ func move():
 		if unit.get_node("CollisionArea").get_overlapping_areas().has($CollisionArea):
 			can_move = false
 			break
-
-	# Update the position if no collisions were detected, else revert to original position.
-	if can_move:
-		position = new_position
-		original_position = new_position
-		center =  $CollisionArea.to_global($CollisionArea/CollisionShape2D.position + $CollisionArea/CollisionShape2D.shape.extents/2)
-		action_component.center = center
-		#MovementPosition CollisionShape
-		$MovementRangeArea/MovementRangeArea.position = center - Vector2($MovementRangeArea/MovementRangeArea.shape.radius, $MovementRangeArea/MovementRangeArea.shape.radius)
-
-	else:
-		abort_movement()
-#		position = start_turn_position  # Revert to original position if collision detected
-#		toggle_move()
-#		remain_movement+= 1
- 
+	if not can_move:
+		position = $movement_comp.abort_movement()
  
 func _draw():
-	var local_start_turn_pos  = to_local(start_turn_position)
+	var local_start_turn_pos  = to_local(global_start_turn_position)
 	if Globals.moving_unit == self:
 		var fill_color = Utils.lighten_color(color, 0.4)
 		# Draw an arc from 0 to PI radians (half a circle).
@@ -106,32 +84,33 @@ func add_to_team(team):
 	var color_rect = get_node("ColorRect")
 	color_rect.modulate = color
 
+
 func process_action():
 	action_component.try_attack()
-
+	
 func process_input():
 	if Color(Globals.cur_player)!=  color :
 		return
 	elif Globals.moving_unit == self and Input.is_action_just_pressed("right_click"): 
-		abort_movement()
+		position = $movement_comp.abort_movement()
 	elif Globals.hovered_unit == self : 
 		if Input.is_action_just_pressed("left_click"): 
 			toggle_move()
 		if Input.is_action_just_pressed("right_click"):
-			print("TOGGLING SCREEN", self)
-			action_component.toggle_action_screen()
+			print("TOGGLING SCREEN", self, action_component, 	action_component.toggle_action_screen())
+			if action_component != null:
+				action_component.toggle_action_screen()
+			else:
+				print("UNIT DOESNT HAVE AN ACTION TO TOGGLE SCREEN FOR")
 	elif  Globals.action_taking_unit == self:
 		if Input.is_action_just_pressed("right_click") :
 			process_action()
-#	elif Globals.moving_unit == self:
-#		if Input.is_action_just_pressed("right_click") :
-#			toggle_move()
+
 func process_unit_placement():
 	if Input.is_action_just_pressed("left_click"): 
-#		print(Globals.hovered_unit, "PROCESSING UNIT PLACEMENT")
-		## check wheter any unit doesnt overlap with this unit
-		if Globals.hovered_unit != self:
+		if Globals.hovered_unit != null:
 			print(Globals.hovered_unit, "POSITION CANNOT BE SET")
+			return
 		var in_valid_buy_area = false
 		## check wheter it is being placed inside the buy bar
 		for buy_area in buy_areas:
@@ -139,7 +118,6 @@ func process_unit_placement():
 				continue  
 			if self not in buy_area.units_inside:
 				continue
-			print("Collision detected with ", buy_area)
 			in_valid_buy_area = true
 		## check wheter it is placed in and of the occupied cities
 		for town in get_tree().get_nodes_in_group("towns"):
@@ -150,6 +128,15 @@ func process_unit_placement():
 			if self in town.units_inside:
 				print("UNIT IS INSIDE OF AN OCCUPIED CITY")
 				in_valid_buy_area = true
+		
+		for river_segment in get_tree().get_nodes_in_group("river_segments"):
+			print(river_segment.get_node("Area2D"), river_segment.get_node("Area2D").get_overlapping_areas ( ))
+			for area in  river_segment.get_node("Area2D").get_overlapping_areas ( ):
+				if area == $CollisionArea:
+					print(area, " OVERLAPS")
+					in_valid_buy_area = false
+					break
+ 
 		if in_valid_buy_area:
 			print(Globals.hovered_unit,"CAN PLACE A UNIT")
 			is_newly_bought = false
@@ -167,37 +154,22 @@ func _process(_delta):
 	if  Globals.placed_unit == self:
 		position = get_global_mouse_position() - size / 2
 		center = get_global_mouse_position() - size / 2
-		start_turn_position = get_global_mouse_position() - size / 2
+		global_start_turn_position = get_global_mouse_position() - size / 2
 		process_unit_placement()
 		return   
 	if Globals.placed_unit != null:
 		return
 	process_input()
-#	if Globals.action_taking_unit == self  :
-#		var other_units = get_tree().get_nodes_in_group("living_units")
-#		var in_attack_range = action_component.units_in_action_range
-#		print("IN ATTACK RANGE", in_attack_range)
-#		for unit in other_units:
-#
-#			if in_attack_range.has(unit):
-#				print(unit, in_attack_range)
-#				unit.get_node("ColorRect").modulate = Color("white")
-#			else:
-#				unit.get_node("ColorRect").modulate = Color("white")
-			
 	if Globals.moving_unit == self:
 		move() 
 
-#func highlight_units_in_range(): 
-func abort_movement():
-	position = start_turn_position
-	Globals.moving_unit = null
-	
+
 func deselect_movement():
 	if Globals.moving_unit == self:
 		remain_movement -= 1
 		Globals.moving_unit = null 
-	set_new_start_turn_point()
+	global_start_turn_position = $movement_comp.set_new_start_turn_point()
+	print("NEW START TURN POS ", global_start_turn_position)
 
 func toggle_move():
 	if Globals.moving_unit == self:
@@ -220,18 +192,15 @@ func toggle_move():
 	Globals.moving_unit = self
 	Globals.action_taking_unit = null
  
- 
-func set_new_start_turn_point():
-	center =$CollisionArea/CollisionShape2D.global_position +$CollisionArea/CollisionShape2D.shape.extents/2 
-	print("CENTER", center)
-	start_turn_position = Vector2(center) 
-
 func update_for_next_turn():
 	remain_movement =  base_movement 
 #	remain_actions = action_component.base_actions
 	if has_node("RangedAttackComp"):
 		$RangedAttackComp.ammo += 1
-	action_component.update_for_next_turn()	
+	if action_component != null:
+		action_component.update_for_next_turn()
+	else:
+		print("DOESNT HAVE AN ATION COMPONENT TO TOGGLE")
 #	if  has_node("HealthComponent"):
 #		$HealthComponent.heal(1)
 
@@ -249,6 +218,9 @@ func _on_health_component_hp_changed(hp, prev_hp):
 		queue_free()
 
 func _on_collision_area_mouse_entered():
+	if Globals.placed_unit == self:
+		return
+ 
 	Globals.hovered_unit = self
 	toggle_show_information()
  
@@ -263,28 +235,8 @@ func toggle_show_information():
 func update_stats_bar():
 	$UnitStatsBar/VBoxContainer/Health.text = "Health "+str($HealthComponent.hp)
 	$UnitStatsBar/VBoxContainer/Actions.text = "Moves "+str(remain_movement)
-#	$UnitStatsBar/VBoxContainer/Attacks.text = "Attacks "+str(action_component.remain_actions)
-
-func _on_movement_range_area_area_entered(_area):
-	pass
-#	if area == self:
-#		return
-#	if Globals.moving_unit != self:
-#		return
-#	units_in_action_range.add(area)
-#	print("area is inside ", area, self)
-#	print("THESE ARE UNITS IN RANGE NOW")
-
-func _on_movement_range_area_area_exited(_area):
-	pass
-#	if area == self:
-#		return
-#	if Globals.moving_unit != self:
-#		return
-#
-#	units_in_action_range.remove(area)
-#	print("area is outside ", area,self)
-#
+ 
+ 
 
 func _on_tree_exiting():
 	# remove_from_group("living_units")
@@ -298,63 +250,11 @@ func _on_tree_exiting():
 	get_tree().get_root().add_child(death_image)
  
  
-#
-#func _on_attack_range_area_area_entered(area):
-##	print (area.get_parent()," ",  area.get_parent() == self, " ", Globals.action_taking_unit != self, " ", self)
-#	if area.get_parent() == self:
-#		return
-#	if Globals.action_taking_unit != self:
-#		return
-#	if area.name == "CollisionArea" and area.get_parent() is BattleUnit and not units_in_action_range.has(area):
-#		units_in_action_range.append(area.get_parent())
-##	print("THESE ARE UNITS IN RANGE NOW", units_in_action_range)
-#func _on_attack_range_area_area_exited(area):
-#	if area.get_parent() == self:
-#		return
-#	if Globals.action_taking_unit!= self:
-#		return
-#	if area.name == "CollisionArea" and units_in_action_range.has(area.get_parent()):
-#		units_in_action_range.erase(area.get_parent()) 
+
+func _on_collision_area_area_entered(area):
+	print("ENTERED AREA")
 
  
-#    def try_attack(self, click_pos, attacked_unit):
-#        ####!!!RANGED UNITS ARNET CONNECTED O THIS FUNCTION!!!#####
-#        if attacked_unit in self.enemies_in_range:
-#            self.try_attack()
-#            hit_result = attacked_unit.check_if_hit()  # 80% hit chance
-#            # num_attacks += 1
-#            if hit_result:
-#                remaining_hp = attacked_unit.take_damage(self)
-#                print("remaining enemy hp", remaining_hp)
-#
-#                return "UNIT ATTACKS"
-#            else:
-#                return "UNIT MISSED"
-#        return "Attack not possible"
-
-#    def get_attackable_units(self):
-#        self.enemies_in_range = []
-#        self.lines_to_enemies_in_range = []
-#        total_attack_range_modifier = sum(self.attack_range_modifiers.values())
-#        # for every living unit
-#        for enemy in game_state.living_units.array:
-#            if enemy.color == self.color:
-#                continue
-#            center_x, center_y = self.center
-#            enemy_center_x, enemy_center_y = enemy.center
-#            distance = math.sqrt((enemy_center_x - center_x)
-#                                 ** 2 + (enemy_center_y - center_y)**2)
-#            line_points = bresenham_line(
-#                center_x, center_y, enemy_center_x, enemy_center_y)
-#            if distance - enemy.size//2 < self.attack_range  * total_attack_range_modifier:
-#                blocked = self.find_obstacles_in_line_to_enemies(
-#                    enemy, line_points)
-#
-#                if not blocked:
-#                    self.enemies_in_range.append(enemy)
-#
-#        print("in try_attack range are", self.enemies_in_range)
-#
  
  
 #    def move_in_game_field(self, click_pos):
@@ -373,7 +273,7 @@ func _on_tree_exiting():
 #        else:
 #            # Create a line between the click position and starting position
 #            movement_line = bresenham_line(
-#                new_center_x, new_center_y, self.start_turn_position[0], self.start_turn_position[1])
+#                new_center_x, new_center_y, self.global_start_turn_position[0], self.global_start_turn_position[1])
 #
 #            # Find the first valid movement position along the line
 #            for pos in movement_line:
@@ -409,7 +309,7 @@ func _on_tree_exiting():
 #
 #    def get_units_movement_area(self):
 #        num_samples = 180
-#        center_x, center_y = self.start_turn_position[0], self.start_turn_position[1]
+#        center_x, center_y = self.global_start_turn_position[0], self.global_start_turn_position[1]
 #        self.valid_movement_positions = []
 #        self.valid_movement_positions_edges = []
 #
@@ -520,21 +420,7 @@ func _on_tree_exiting():
 #            ## repeat until condition is fullfilled
 #
 #
-#    def draw_possible_movement_area(self):
-#        farthest_points = []
-#        for angle in self.valid_movement_positions:
-#            if len(angle) >= 2:
-#                farthest_points.append(angle[-1])
-#
-#        if len(self.valid_movement_positions) > 2:
-#
-#            farthest_points.append(self.valid_movement_positions[0][-1])
-#            # farthest_points.append(angle[-2])
-#
-#        # Draw the connected path using lines
-#        if len(farthest_points) > 1:
-#            pygame.draw.lines(screen, self.color, False, farthest_points, 2)
-#
+ 
 #    def find_obstacles_in_line_to_enemies(self, enemy, line_points):
 #        # I could only reset the line to that specific unit instead of deleting the whole array
 #        ######################### x FIND BLOCKING UNITS ##############
@@ -569,26 +455,7 @@ func _on_tree_exiting():
 #
  
  
-#    def try_attack(self):
-#        self.remain_actions -= 1
-#        if self.ammo != None:
-#            self.ammo -= 1
-#
-#    def try_attack(self, click_pos, attacked_unit):
-#        ####!!!RANGED UNITS ARNET CONNECTED O THIS FUNCTION!!!#####
-#        if attacked_unit in self.enemies_in_range:
-#            self.try_attack()
-#            hit_result = attacked_unit.check_if_hit()  # 80% hit chance
-#            # num_attacks += 1
-#            if hit_result:
-#                remaining_hp = attacked_unit.take_damage(self)
-#                print("remaining enemy hp", remaining_hp)
-#
-#                return "UNIT ATTACKS"
-#            else:
-#                return "UNIT MISSED"
-#        return "Attack not possible"
-#
+ 
 #    def check_if_hit(self):
 #        attack_resistance =   sum(self.attack_resistances.values())
 #
@@ -614,32 +481,7 @@ func _on_tree_exiting():
 #
 #            return False
 #
-#    def take_damage(self, attacker):
-#
-#        self.hp -= 1
-#        if self.hp <= 0:
-#            game_state.living_units.array.remove(self)
-#            # players[cur_player].remove_from_game(self)
-#            attacker.get_boost_for_destroying_unit()
-#            game_state.killed_units += 1
-#            update_players_unit()
-#            print("Removing unit:", self)
-#            print("Units in living_units:", game_state.living_units.array)
-#
-#            return self.hp
-#            del self
-#
-#        return self.hp
-#
-#
-#    def reset_for_next_turn(self):
-#
-#        self.start_turn_position = (
-#            self.x + self.size//2, self.y + self.size//2)
-#        self.remain_actions = self.base_actions
-#        self.get_units_movement_area()
-#        self.apply_modifiers()
-#
+  
 #    def draw_lines_to_enemies_in_range(self):
 #        for line in self.lines_to_enemies_in_range:
 #            start = line["start"]
@@ -662,105 +504,7 @@ func _on_tree_exiting():
 #                    f"{int(distance)} meters", True, WHITE)
 #                text_rect = text_surface.get_rect(center=midpoint)
 #                screen.blit(text_surface, text_rect)
-#
-#    def highlight_attackable_units(self):
-#        for unit in self.enemies_in_range:
-#            # Calculate the center coordinates of self and the target unit
-#            self_center = self.center
-#            target_center = unit.center
-#            # Draw a line from self's center to the target unit's center
-#            unit.draw_as_active()
-#
-#    def render_hovered_state(self):
-#        padding = 2  # Adjust the padding size as needed
-#        font = pygame.font.Font(None, 20)
-#        text_color = (255, 255, 255)  # White color
-#
-#        # Determine the width of the rectangle based on the longest text line
-#        text_lines = [
-#            f"Attacks: {self.remain_actions}",
-#            f"Ammo: {self.ammo}",
-#            f"Hp: {self.hp}"
-#        ]
-#        max_line_width = max(font.size(line)[0] for line in text_lines)
-#        rect_width = max_line_width + 2 * padding
-#
-#        # Create a transparent background for the text with the adjusted width
-#        text_surface = pygame.Surface((rect_width, 80), pygame.SRCALPHA)
-#        pygame.draw.rect(text_surface, (0, 0, 0, 100), (0, 0,
-#                         text_surface.get_width(), text_surface.get_height()))
-#
-#        # Render remaining attacks, ammo, and HP in the formatted rectangle
-#        for i, line in enumerate(text_lines):
-#            text_rendered = font.render(line, True, text_color)
-#            text_surface.blit(text_rendered, (padding, i * 20 + padding))
-#
-#        # Position the rectangle below the unit
-#        text_pos = (self.x, self.y + self.size + padding)
-#
-#        # Blit the formatted rectangle onto the screen
-#        screen.blit(text_surface, text_pos)
-#
-#    def render(self):
-#        padding = 2  # Adjust the padding size as needed
-#
-#        warrior_img = pygame.image.load(f"img/{self.icon}")
-#        # Scale down the image to fit within the allocated space with padding
-#        max_image_size = self.size - padding * 2
-#        warrior_img = pygame.transform.scale(
-#            warrior_img, (max_image_size, max_image_size))
-#
-#        warrior_img_rect = warrior_img.get_rect()
-#        # Center the image within the allocated space with padding
-#        warrior_img_rect.center = (
-#            self.x + self.size // 2, self.y + self.size // 2)
-#
-#        # Determine the outline color based on the unit's team color
-#        outline_color = BLACK  # self.outline_color  # Use the unit's color for the outline
-#
-#        # Draw the filled rectangle for the unit
-#        pygame.draw.rect(screen, self.color, self.rect)
-#        pygame.draw.rect(screen, outline_color, self.rect, 1)  # Outline
-#
-#        # Draw the unit image
-#        screen.blit(warrior_img, warrior_img_rect)
-#
-#    def get_boost_for_destroying_unit(self):
-#        print("unit killed an enemy, and could get a boost now")
-#
-#    def draw_as_active(self):
-#        # Try to execute the following block of code
-#        try:
-#            # Check if the attack_range_modifiers attribute contains "in_observers_range"
-#
-#            if "in_observer_range" in self.attack_range_modifiers   :
-#                if self.attack_range_modifiers[ "in_observer_range"] > 0:
-#                    outline_rect = pygame.Rect(
-#                    self.x+self.size//2, self.y-10  , 20 , 20)
-#                    pygame.draw.rect(screen,  GRAY, outline_rect, 0)
-#
-#                    render_image("img/observer.png", (15, 15), (self.x+self.size//2, self.y-10 ), screen)
-#
-#            # Create a rectangle outline around the unit
-#            outline_rect = pygame.Rect(
-#                int(self.x) - 2, int(self.y) - 2, self.size + 4, self.size + 4)
-#            # Draw the rectangle outline on the screen in black color with a width of 2 pixels
-#            pygame.draw.rect(screen, BLACK, outline_rect, 2)
-#
-#            # Calculate the center coordinates of the unit
-#
-#            center_x = self.center[0]
-#            center_y = self.center[1]
-#            # Draw a line from the start_turn_position attribute to the center of the unit in red color with a width of 2 pixels
-#            pygame.draw.line(screen, self.color, self.start_turn_position,
-#                            (center_x, center_y), 2)
-#        # If an exception occurs
-#        except Exception as e:
-#            # Print an error message with the exception details
-#            print("An error occurred in draw as active:", e)
-
-
-
+# 
  
 
 
@@ -770,5 +514,6 @@ func _on_tree_exiting():
 
 
 
+ 
  
  

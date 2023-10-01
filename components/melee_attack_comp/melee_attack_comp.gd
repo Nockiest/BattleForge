@@ -8,28 +8,32 @@ func _ready():
 	$SlashAnimation.hide()
 	
 func try_attack():
-	if super.try_attack() !="SUCESS":
+	print("CALLED TRY ATTACK")
+	var res =super.try_attack()
+	print("RES", res)
+	if res!="SUCESS":
 		print("ATTACK FAILED")
-		return
-#	if not Globals.hovered_unit or Globals.hovered_unit.color == get_parent().color:
-#		attack_failed.emit()
-#		return "failed"	
-#	print( self.get_parent().global_position.distance_to(Globals.hovered_unit.global_position), attack_range)
-#	var distance = self.get_parent().global_position.distance_to(Globals.hovered_unit.global_position) 
-#	if distance > attack_range:
-#		attack_failed.emit()
-#		return "failed"
+		return "FAILED"
+	else:
+		print("ATTACK_SUCESS")
+ 
+	return "SUCESS"
+func play_slash_animation():
 	var collision_shape = Globals.hovered_unit.get_node("CollisionArea/CollisionShape2D")  # Replace with your actual node path
 	var shape_size = collision_shape.shape.extents * 2  # For RectangleShape2D and CapsuleShape2D
 	var pos = Globals.hovered_unit.global_position + shape_size / 2
 	Utils.play_animation_at_position($SlashAnimation,"slash",pos) 
-#	play_attack_animation(attacked_entity)
-	return "SUCESS"
-
 func attack():
-	Globals.last_attacker = get_parent()
+	super.attack()
 	Globals.hovered_unit.get_node("HealthComponent").hit(1) 
 	remain_actions -=1
+	play_slash_animation()
+
+func process_action():
+	
+#	print("CALLED")
+#	super.try_attack()
+	try_attack()
 # toggle_action_screen()
 #func play_attack_animation(attacked_entity):
 #	$SlashAnimation.z_index = 1000

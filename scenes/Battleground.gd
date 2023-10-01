@@ -7,9 +7,11 @@ var selected_attacking_unit = null
 var unit_placement_mode = false
 var loaded = false
 var teams = ["red", "blue"]
-var town: PackedScene = preload("res://structures/town.tscn")
+var town_scene: PackedScene = preload("res://structures/town.tscn")
 var player_scene: PackedScene = preload("res://player.tscn")
-var supply_depo: PackedScene = preload("res://structures/supply_depo.tscn")
+var supply_depo_scene: PackedScene = preload("res://structures/supply_depo.tscn")
+var river_scene: PackedScene = preload("res://structures/river.tscn")
+var forrest_scene:PackedScene = preload("res://structures/forrest/forrest.tscn")
 #this could cause potential problems in the future
 @onready var tenders = get_tree().get_nodes_in_group("player_tenders")
 @onready var players = get_tree().get_nodes_in_group("players")
@@ -29,21 +31,29 @@ func _ready():
 	set_process_input(true)
 	put_unit_into_teams()
  
-	for i in range(1):
-		var town_instance = town.instantiate() as Area2D
-		town_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
+	for i in range(7):
+		var town_instance = town_scene.instantiate() as Area2D
+		town_instance.global_position = Vector2(randf_range(100, get_viewport().size.x-100), randf_range(100, get_viewport().size.y-100))
 		$Structures.add_child(town_instance)
-#		town_instance.connect()
+#	for town in get_tree().get_nodes_in_group("towns"):
+#		print(town.get_overlapping_areas())
+#	for i in range(2):
+#		var supply_depo_instance = supply_depo_scene.instantiate() as Area2D
+#		supply_depo_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
+#		$Structures.add_child(supply_depo_instance)
 	for i in range(2):
-		var supply_depo_instance = supply_depo.instantiate() as Area2D
-		supply_depo_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
-		$Structures.add_child(supply_depo_instance)
- 
+		var river_instance = river_scene.instantiate() as Node2D
+#		supply_depo_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
+		$Structures.add_child(river_instance)
+	for i in range(6):
+		var forrest_instance = forrest_scene.instantiate() as Node2D
+		$Structures.add_child(forrest_instance)
+#		river_instance.call_deferred("solve_river_intersection")
+#	Engine.time_scale = 0.5
 func _on_blue_buy_area_buy_unit(cost):
 	print("buying unit", cost, Globals.cur_player)
   
  
-	
 func _on_red_buy_area_buy_unit(cost):
 	print("buying unit", cost, Globals.cur_player)
  
@@ -78,10 +88,10 @@ func give_money_income_to_players():
 	var red_towns = 0
 	var blue_towns = 0
 	var towns = get_tree().get_nodes_in_group("towns")
-	for town in towns:
-		if town.team_alligiance == "red":
+	for structure in towns:
+		if structure.team_alligiance == "red":
 			red_towns += 1
-		elif town.team_alligiance == "blue":
+		elif structure.team_alligiance == "blue":
 			blue_towns += 1
 #	print(red_towns, blue_towns, " BLUE AND RED TOWNS")
 	Globals.blue_player_money += per_turn_income + blue_towns*10

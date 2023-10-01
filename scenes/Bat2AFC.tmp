@@ -25,6 +25,7 @@ metadata/_edit_lock_ = true
 
 [node name="BlueBuyArea" parent="." instance=ExtResource("6_tkc11")]
 position = Vector2(962, 39)
+team = null
 
 [node name="Structures" type="Node2D" parent="."]
 
@@ -34,7 +35,6 @@ position = Vector2(962, 39)
 position = Vector2(462, 249)
 
 [node name="Knight" parent="LivingUnits" instance=ExtResource("9_ch3n6")]
-visible = true
 position = Vector2(343, 261)
 
 [node name="Canon" parent="LivingUnits" instance=ExtResource("5_5bohv")]

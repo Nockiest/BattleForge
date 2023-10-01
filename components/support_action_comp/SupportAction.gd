@@ -1,4 +1,4 @@
-extends Node2D
+extends DefaultAttackComponent
 class_name  SupportAction
 var supported_entity
 var buffed_variable = "attack_range"
@@ -8,8 +8,6 @@ var buff_already_applied = false
 var color = Color(1, 0.75, 0.8)#pink
 var area_support = false
 var support_range = 150
-var units_in_action_range:Array = []
-var center
  
 func _ready():
 	$SupportConnnection.modulate = color
@@ -55,7 +53,7 @@ func provide_buffs():
 		print("AREA SUPPORT")
 		return
  
-	if get_parent().color  != Color(Globals.cur_player):
+	if owner.color  != Color(Globals.cur_player):
 		return
 	if buff_already_applied and constant_buff:
 		return
@@ -89,46 +87,44 @@ func draw_line_to_supported_entity():
 
 func _process(_delta):
 	draw_line_to_supported_entity()
-	
-func toggle_action_screen():
-	print( Globals.action_taking_unit == get_parent())
-	if Globals.action_taking_unit == get_parent():
-		Globals.action_taking_unit = null
-		Globals.attacking_component = null
-		print_debug("1 ", self)
-		return
-	if Globals.hovered_unit != get_parent():
-		print ("2 ", self,  Globals.hovered_unit)
-		return
-	if Globals.action_taking_unit != null:
-		print_debug("3 ", self)
-		return
-	## switch between moving and doing action
-	get_parent().deselect_movement()
-	Globals.action_taking_unit = get_parent()
-	Globals.attacking_component = self
-	print("ACTION TAKING UNIT", Globals.action_taking_unit)
+#
+#func toggle_action_screen():
+##	print( Globals.action_taking_unit == get_parent())
+#	if Globals.action_taking_unit == get_parent():
+#		Globals.action_taking_unit = null
+#		Globals.attacking_component = null
+#		print_debug("1 ", self)
+#		return
+#	if Globals.hovered_unit != get_parent():
+#		print ("2 ", self,  Globals.hovered_unit)
+#		return
+#	if Globals.action_taking_unit != null:
+#		print_debug("3 ", self)
+#		return
+#	## switch between moving and doing action
+#	get_parent().deselect_movement()
+#	Globals.action_taking_unit = get_parent()
+#	Globals.attacking_component = self
+#	print("ACTION TAKING UNIT", Globals.action_taking_unit)
 
  
 func _on_area_entered(area):
-	if area.get_parent() == get_parent():
+	if area.get_parent() == owner:
 		return
 	if area.name != "CollisionArea":
 		return
 	if not (area.get_parent() is BattleUnit):
 		return
 	
-	print(area.get_parent()   ,get_parent(), self )
+	print(area.get_parent()   , owner, self )
 	if not(self is ArearResupplyAction):
-		if area.get_parent().color != get_parent().color: ## It will only accept same team units
+		if area.get_parent().color != owner.color: ## It will only accept same team units
 			return
 	if units_in_action_range.has(area.get_parent()) :
 		return
 	units_in_action_range.append(area.get_parent())
-	print("IN ATTACK RANGE " , units_in_action_range, self.get_parent())
-
 
 func _on_area_exited(area):
 	if area.name == "CollisionArea" and units_in_action_range.has(area.get_parent()):
 		units_in_action_range.erase(area.get_parent()) 
-	print("IN ATTACK RANGE AFTER EXIT " , units_in_action_range)
+ 

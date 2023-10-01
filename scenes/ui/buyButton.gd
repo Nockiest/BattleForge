@@ -15,19 +15,22 @@ func _on_pressed():
 	## bohuřžel nemůžžu psát proěné jako reference k jiným proměnným, což komplikuje kod
 	var mock_unit = UnitClass.instantiate() as  StaticBody2D
 	var battleground = $"../../../.."
-	var buy_area = battleground.get_node("BlueBuyArea")  if Globals.cur_player == "blue" else  battleground.get_node("RedBuyArea")
+#	var buy_area = battleground.get_node("BlueBuyArea")  if Globals.cur_player == "blue" else  battleground.get_node("RedBuyArea")
 	if Globals.cur_player == "blue":
 		if Globals.blue_player_money < mock_unit.cost:
 			print("CANT BUY THE BLUE UNIT ", Globals.blue_player_money)
 			return
 		Globals.blue_player_money -= mock_unit.cost
-		buy_area._place_new_unit(mock_unit ,Globals.blue_player_money )
+##		buy_area._place_new_unit(mock_unit ,Globals.blue_player_money )
 	else:
 		if  Globals.red_player_money < mock_unit.cost:
 			print("CANT BUY THE RED UNIT ", Globals.blue_player_money)
 			return
 		Globals.red_player_money -= mock_unit.cost
-		buy_area._place_new_unit(mock_unit ,  Globals.red_player_money )
+	mock_unit.color = Color(Globals.cur_player)
+	mock_unit.add_to_team(Color(Globals.cur_player))
+##		buy_area._place_new_unit(mock_unit ,  Globals.red_player_money )
+	battleground.get_node("LivingUnits").add_child(mock_unit)
 
 
 
