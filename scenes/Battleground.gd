@@ -31,25 +31,146 @@ func _ready():
 	set_process_input(true)
 	put_unit_into_teams()
  
-	for i in range(7):
-		var town_instance = town_scene.instantiate() as Area2D
-		town_instance.global_position = Vector2(randf_range(100, get_viewport().size.x-100), randf_range(100, get_viewport().size.y-100))
-		$Structures.add_child(town_instance)
+#	for i in range(7):
+#		var town_instance = town_scene.instantiate() as Area2D
+#		town_instance.global_position = Vector2(randf_range(100, get_viewport().size.x-100), randf_range(100, get_viewport().size.y-100))
+#		$Structures.add_child(town_instance)
 #	for town in get_tree().get_nodes_in_group("towns"):
 #		print(town.get_overlapping_areas())
 #	for i in range(2):
 #		var supply_depo_instance = supply_depo_scene.instantiate() as Area2D
 #		supply_depo_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
 #		$Structures.add_child(supply_depo_instance)
-	for i in range(2):
+	var all_segments = []
+	for i in range(10):
+		var top_point =  Vector2(randi_range(100, get_viewport().size.x  -100), 0)
+		var right_point =  Vector2(  get_viewport().size.x  , randi_range(100,  get_viewport().size.y -100))
+		var left_point =  Vector2( 0 , randi_range(100,  get_viewport().size.y -100 ))
+		var bottom_point =  Vector2(randi_range(100,  get_viewport().size.x -100 ),    get_viewport().size.y )		
+		# Vector2(100,0)Vector2(500,500)  Vector2(500, screen_size.y)
+		var start_point = top_point if randi() % 2 == 0 else left_point
+		var control_point =  Vector2(randi_range(100, get_viewport().size.x-100), randi_range(100, get_viewport().size.y-100))
+		var end_point = bottom_point if randi() % 2 == 0 else right_point
+		
+		var new_segments = generate_bezier_curve(start_point, end_point, control_point,  10)
+		var non_intersecting_segments = []
+		var intersecting_segment 
+		for segment in new_segments:
+			for existing_segment in all_segments:
+				if do_lines_intersect(segment[0], segment[1], existing_segment[0], existing_segment[1])  :
+					print("SEGMENTS INTERSECTING", segment[0], segment[1], existing_segment[0], existing_segment[1] )
+					intersecting_segment = segment
+					non_intersecting_segments.append([segment[1], existing_segment[0]])
+			if intersecting_segment:
+				break
+			non_intersecting_segments.append(segment)
+		if intersecting_segment:
+			print(len(non_intersecting_segments), len(new_segments))
+		for segment in non_intersecting_segments:
+			all_segments.append(segment  )
 		var river_instance = river_scene.instantiate() as Node2D
-#		supply_depo_instance.global_position = Vector2(randf_range(0, get_viewport().size.x), randf_range(0, get_viewport().size.y))
+		for segment in non_intersecting_segments:
+			river_instance.add_river_segment(segment[0], segment[1],  false)
 		$Structures.add_child(river_instance)
 	for i in range(6):
 		var forrest_instance = forrest_scene.instantiate() as Node2D
 		$Structures.add_child(forrest_instance)
 #		river_instance.call_deferred("solve_river_intersection")
+func generate_bezier_curve(start:Vector2, end:Vector2, control_point:Vector2,  num_segments:int):
+	var t:float = 0
+	var random_point_1 = Vector2(randf_range(start.x, end.x), randf_range(start.y, end.y))
+	var points = []
+	var segments = []
+	while t <= 1:
+		# Define the control points for the Bézier curve 
+		var q0 = start.lerp(control_point, t)
+		var q1 = control_point.lerp(end , t)
+		var point = q0.lerp(q1, t)
+		# Generate two random points between the start and end points
+		points.append(point)
+#		print(line.points.size)
+		if len( points) >= 2:
+			segments.append([ round(points[-1]), round(points[-2]) ])
+#			add_river_segment(points[len( points )-1],  points[len( points)-2],true)
+		t += 1.0/num_segments
+	return segments
+
 #	Engine.time_scale = 0.5
+ 
+ 
+# def generate_chunks(self, rivers):
+#        intersects = False
+#        intersecting_rivers = []
+#        possible_convergence_points = []
+#        for i in range(self.num_segments + 1):
+#            t = i / self.num_segments
+#            point = calculate_bezier_curve(t, self.startpoint, self.endpoint,self.control_points[0], self.endpoint) # měl bych využít oba control pointy
+#            rounded_point = (round(point[0]), round(point[1]))
+#
+#            self.points.append(rounded_point)
+#
+#
+#            for existing_river in  rivers:
+#                for j in range(len(existing_river.points) - 1):
+#                    intersection = do_lines_intersect(self.points[len(self.points) - 2], rounded_point, existing_river.points[j], existing_river.points[j+1])
+#                    # print(intersection, existing[j], existing[j+1] )
+#                    if intersection:
+#                        intersects = True  # Set the intersection flag to True
+#                        # print(intersection)
+#                        convergence_point = existing_river.points[j+1]  # Store the intersection point
+#                        possible_convergence_points.append(convergence_point)
+#                        intersecting_rivers.append(existing_river)
+#                        print("convergence", convergence_point)
+#                        # self.convergence_point = convergence_point
+#                        # break  # Break the inner loop once an intersection is found
+#
+#
+#                # if intersects:  # If an intersection is found, break the outer loop
+#                #     break
+#
+#
+#            if intersects:  # If an intersection is found, break the loop and do not add the river
+#                break
+#        convergence_copy = possible_convergence_points.copy() 
+#        index = 0
+#        while intersects == True:
+#            self.points[-1] =  convergence_copy[index]
+#            intersects = False
+#            for existing_river in  rivers:
+#                for j in range(len(existing_river.points) - 1):
+#                    intersects = do_lines_intersect(self.points[len(self.points) - 2], self.points[len(self.points) - 3], existing_river.points[j], existing_river.points[j+1])
+#                    # print("new intersection", intersects)
+#
+#                    if intersects:
+#
+#                        break
+#                if intersects:
+#                    break
+#
+func orientation(p, q, r):
+		var val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
+		if val == 0:
+			return 0
+		return 1 if val > 0 else 2
+
+func do_lines_intersect(p1, p2, p3, p4):
+
+ 
+	var o1 = orientation(p1, p2, p3)
+	var o2 = orientation(p1, p2, p4)
+	var o3 = orientation(p3, p4, p1)
+	var o4 = orientation(p3, p4, p2)
+
+	if o1 != o2 and o3 != o4:
+		if min(p1[0], p2[0]) <= max(p3[0], p4[0]) and min(p3[0], p4[0]) <= max(p1[0], p2[0]) and \
+			min(p1[1], p2[1]) <= max(p3[1], p4[1]) and min(p3[1], p4[1]) <= max(p1[1], p2[1]):
+			# Calculate the point of intersection
+			var intersect_x = (o1 * p3[0] - o2 * p4[0]) / (o1 - o2)
+			var intersect_y = (o1 * p3[1] - o2 * p4[1]) / (o1 - o2)
+			return Vector2(intersect_x, intersect_y)
+
+	return false
+
 func _on_blue_buy_area_buy_unit(cost):
 	print("buying unit", cost, Globals.cur_player)
   

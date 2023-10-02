@@ -112,18 +112,19 @@ func solve_river_intersection(segment,colliding_area ):
 	add_river_segment(new_segment_start, new_segment_end, false)
 #	# Add the Line2D node to the scene tree
 func _ready():
-	print(position)
-	screen_size =  Vector2(get_viewport().get_visible_rect().size.x ,get_viewport().get_visible_rect().size.y)
-	var top_point =  Vector2(randi_range(100, screen_size.x  -100), 0)
-	var right_point =  Vector2( screen_size.x  , randi_range(100, screen_size.y -100))
-	var left_point =  Vector2( 0 , randi_range(100, screen_size.y -100 ))
-	var bottom_point =  Vector2(randi_range(100, screen_size.x -100 ),   screen_size.y )		
-	# Vector2(100,0)Vector2(500,500)  Vector2(500, screen_size.y)
-	start_point = top_point if randi() % 2 == 0 else left_point
-	control_point =  Vector2(randi_range(100, screen_size.x-100), randi_range(100, screen_size.y-100))
-	end_point = bottom_point if randi() % 2 == 0 else right_point
-	print(start_point, control_point, end_point, screen_size)
-	generate_bezier_curve(start_point, end_point,control_point,  num_segments)
+	pass
+#	print(position)
+#	screen_size =  Vector2(get_viewport().get_visible_rect().size.x ,get_viewport().get_visible_rect().size.y)
+#	var top_point =  Vector2(randi_range(100, screen_size.x  -100), 0)
+#	var right_point =  Vector2( screen_size.x  , randi_range(100, screen_size.y -100))
+#	var left_point =  Vector2( 0 , randi_range(100, screen_size.y -100 ))
+#	var bottom_point =  Vector2(randi_range(100, screen_size.x -100 ),   screen_size.y )		
+#	# Vector2(100,0)Vector2(500,500)  Vector2(500, screen_size.y)
+#	start_point = top_point if randi() % 2 == 0 else left_point
+#	control_point =  Vector2(randi_range(100, screen_size.x-100), randi_range(100, screen_size.y-100))
+#	end_point = bottom_point if randi() % 2 == 0 else right_point
+#	print(start_point, control_point, end_point, screen_size)
+#	generate_bezier_curve(start_point, end_point,control_point,  num_segments)
  
 func find_other_river_intersections():
 	pass
